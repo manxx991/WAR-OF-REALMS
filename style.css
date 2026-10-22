@@ -1,0 +1,1292 @@
+/*
+ * style.css
+ * War of Realms: Math Arena (SMA & Mahasiswa Baru Edition)
+ * Tampilan Cyber-Arcade Pixel Art, Dark Mode Glassmorphism & Neon Glow
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Orbitron:wght@700;800;900&family=JetBrains+Mono:wght@600;700;800&display=swap');
+
+/* ==========================================
+   RESET & DASAR TAMPILAN
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+body {
+  background-color: #05070d;
+  background-image: 
+    radial-gradient(circle at 50% 15%, rgba(0, 242, 254, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 15% 85%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+    linear-gradient(180deg, #04060a 0%, #070b14 100%);
+  font-family: 'Chakra Petch', 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ==========================================
+   GAME WRAPPER & CRT OVERLAY
+   ========================================== */
+#gameWrapper {
+  position: relative;
+  width: 960px;  /* 480 * 2 (Scalable) */
+  height: 432px; /* 216 * 2 */
+  max-width: 100vw;
+  max-height: 100vh;
+  aspect-ratio: 480 / 216;
+  background-color: #000000;
+  border: 2px solid rgba(0, 242, 254, 0.85);
+  box-shadow: 
+    0 0 30px rgba(0, 242, 254, 0.35),
+    0 15px 45px rgba(0, 0, 0, 0.95),
+    inset 0 0 20px rgba(0, 242, 254, 0.15);
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* Efek Scanline & Vignette Retro Arcade */
+.crt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 40;
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.22) 50%),
+    radial-gradient(circle at center, transparent 65%, rgba(0, 0, 0, 0.55) 100%);
+  background-size: 100% 3px, 100% 100%;
+  opacity: 0.65;
+}
+
+#gameCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* ==========================================
+   TOP HUD FLOATING STRIP (Pause & Speed)
+   ========================================== */
+.top-hud-strip {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.top-hud-btn {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(11, 19, 38, 0.88);
+  border-radius: 6px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pause-hud-btn {
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.55);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+}
+
+.pause-hud-btn:hover {
+  background: rgba(0, 242, 254, 0.25);
+  border-color: #00f2fe;
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.5);
+  transform: translateY(-1px);
+}
+
+.pause-hud-btn:active {
+  transform: translateY(1px);
+}
+
+.hud-btn-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.hud-btn-text {
+  letter-spacing: 0.5px;
+}
+
+.hud-key-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.speed-hud-btn {
+  color: #ffd200;
+  border: 1px solid rgba(255, 210, 0, 0.6);
+  box-shadow: 0 0 10px rgba(255, 210, 0, 0.2);
+}
+
+.speed-hud-btn:hover {
+  background: rgba(255, 210, 0, 0.25);
+  border-color: #ffd200;
+  box-shadow: 0 0 16px rgba(255, 210, 0, 0.5);
+  transform: translateY(-1px);
+}
+
+.speed-hud-btn:active {
+  transform: translateY(1px);
+}
+
+.top-hud-center-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(7, 12, 24, 0.75);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: 20px;
+  padding: 2px 10px;
+  backdrop-filter: blur(4px);
+}
+
+.cyber-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  animation: cyberDotPulse 1.8s infinite;
+}
+
+@keyframes cyberDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.tactical-hud-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+/* ==========================================
+   BOTTOM DECK BAR (Tinggi Proporsional ~27-28%)
+   ========================================== */
+#bottomDeckBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 27.5%;
+  background: linear-gradient(180deg, rgba(13, 20, 36, 0.95) 0%, rgba(6, 10, 20, 0.98) 100%);
+  border-top: 2px solid #00f2fe;
+  box-shadow: 
+    0 -4px 20px rgba(0, 242, 254, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  z-index: 30;
+  backdrop-filter: blur(8px);
+}
+
+/* Tombol Aksi Kuis Kiri & Kanan */
+.action-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 88%;
+  border-radius: 10px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  line-height: 1.15;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.action-btn:active {
+  transform: translateY(2px) scale(0.98);
+}
+
+.action-btn-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.action-icon {
+  font-size: 16px;
+  line-height: 1;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+}
+
+.action-btn-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.action-btn:hover .action-btn-glow {
+  opacity: 1;
+}
+
+.mana-quiz-btn {
+  background: linear-gradient(180deg, #0088cc 0%, #00b4d8 50%, #0077b6 100%);
+  border: 1.5px solid #00f2fe;
+  color: #ffffff;
+  box-shadow: 
+    0 0 14px rgba(0, 242, 254, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.mana-quiz-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 22px rgba(0, 242, 254, 0.7);
+  transform: translateY(-1px);
+}
+
+.heal-base-btn {
+  background: linear-gradient(180deg, #10b981 0%, #059669 50%, #047857 100%);
+  border: 1.5px solid #34d399;
+  color: #ffffff;
+  box-shadow: 
+    0 0 14px rgba(16, 185, 129, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.heal-base-btn:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.7);
+  transform: translateY(-1px);
+}
+
+.btn-main-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.btn-sub-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffeaa7;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================
+   DECK CENTER: TABUNG MANA & KARTU PASUKAN
+   ========================================== */
+.deck-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Tabung Indikator Mana */
+.mana-gauge-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(11, 19, 38, 0.9);
+  padding: 3px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+}
+
+.mana-header-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  gap: 16px;
+}
+
+.mana-label-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  color: #00f2fe;
+  letter-spacing: 0.5px;
+}
+
+.mana-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #00f2fe;
+  text-shadow: 0 0 6px rgba(0, 242, 254, 0.7);
+}
+
+.mana-track-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mana-icon {
+  font-size: 12px;
+  color: #00f2fe;
+  filter: drop-shadow(0 0 4px #00f2fe);
+}
+
+.mana-track {
+  width: 210px;
+  height: 8px;
+  background: #080d1a;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.mana-fill {
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, #0077b6 0%, #00f2fe 70%, #a8ff78 100%);
+  box-shadow: 0 0 10px #00f2fe;
+  transition: width 0.15s ease-out;
+  position: relative;
+}
+
+.mana-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: manaShimmerMove 2s infinite linear;
+}
+
+@keyframes manaShimmerMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 5 Slot Kartu Panggil Pasukan Cyber-Rune */
+.deck-cards {
+  display: flex;
+  gap: 8px;
+}
+
+.card-btn {
+  position: relative;
+  width: 62px;
+  height: 68px;
+  background: linear-gradient(180deg, #162032 0%, #0a1120 100%);
+  border: 1.5px solid rgba(0, 242, 254, 0.5);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.card-btn:hover:not(.disabled) {
+  transform: translateY(-3px);
+  filter: brightness(1.15);
+}
+
+.card-btn:active:not(.disabled) {
+  transform: translateY(1px);
+}
+
+/* Card Individual Border Glows */
+.card-unit-1 {
+  border-color: rgba(0, 242, 254, 0.6);
+}
+.card-unit-1:hover:not(.disabled) {
+  border-color: #00f2fe;
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.5);
+}
+
+.card-unit-2 {
+  border-color: rgba(16, 185, 129, 0.6);
+}
+.card-unit-2:hover:not(.disabled) {
+  border-color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+}
+
+.card-unit-3 {
+  border-color: rgba(168, 85, 247, 0.6);
+}
+.card-unit-3:hover:not(.disabled) {
+  border-color: #c084fc;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.5);
+}
+
+.card-unit-4 {
+  border-color: rgba(245, 166, 35, 0.6);
+}
+.card-unit-4:hover:not(.disabled) {
+  border-color: #ffd200;
+  box-shadow: 0 0 14px rgba(255, 210, 0, 0.5);
+}
+
+.card-unit-5 {
+  border-color: rgba(244, 63, 94, 0.6);
+}
+.card-unit-5:hover:not(.disabled) {
+  border-color: #fb7185;
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.5);
+}
+
+.card-btn.disabled {
+  filter: grayscale(0.85) brightness(0.45);
+  cursor: not-allowed;
+  border-color: #2b394f;
+  box-shadow: none;
+}
+
+.card-hotkey-badge {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 0 3px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  line-height: 1.2;
+}
+
+.card-cost-wrap {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 0 4px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 210, 0, 0.35);
+}
+
+.cost-gem {
+  font-size: 7px;
+}
+
+.card-cost {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ffd200;
+}
+
+.card-avatar {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+  margin: 1px 0;
+  transition: transform 0.1s;
+}
+
+.card-btn:hover .card-avatar {
+  transform: scale(1.1);
+}
+
+.card-name {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  color: #f1f5f9;
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+/* Overlay Cooldown Gelap Jam Putar */
+.cd-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  transition: height 0.08s linear;
+  backdrop-filter: blur(1px);
+}
+
+/* ==========================================
+   MODAL OVERLAYS (BLURRED BACKDROP)
+   ========================================== */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(3, 7, 18, 0.88);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+/* Base Modal Box */
+.menu-box {
+  background: linear-gradient(150deg, rgba(15, 23, 42, 0.98) 0%, rgba(7, 10, 19, 0.99) 100%);
+  border: 2px solid rgba(0, 242, 254, 0.6);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 
+    0 0 35px rgba(0, 242, 254, 0.25),
+    0 20px 50px rgba(0, 0, 0, 0.95);
+  max-width: 460px;
+  width: 92%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  animation: cyberPopIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+/* ==========================================
+   KOTAK DIALOG KUIS TAKTIS (CYBER TERMINAL)
+   ========================================== */
+.cyber-quiz-box {
+  width: 420px;
+  background: linear-gradient(160deg, rgba(13, 20, 36, 0.98) 0%, rgba(6, 10, 20, 0.99) 100%);
+  border: 2px solid #00f2fe;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 
+    0 0 35px rgba(0, 242, 254, 0.4),
+    0 15px 45px rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  animation: cyberPopIn 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+/* Sudut Dekorasi Cyber */
+.quiz-corner-deco, .modal-corner-deco {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: #00f2fe;
+  border-style: solid;
+  pointer-events: none;
+}
+.quiz-corner-deco.top-left, .modal-corner-deco.top-left {
+  top: 3px; left: 3px; border-width: 2px 0 0 2px;
+}
+.quiz-corner-deco.top-right, .modal-corner-deco.top-right {
+  top: 3px; right: 3px; border-width: 2px 2px 0 0;
+}
+.quiz-corner-deco.bottom-left, .modal-corner-deco.bottom-left {
+  bottom: 3px; left: 3px; border-width: 0 0 2px 2px;
+}
+.quiz-corner-deco.bottom-right, .modal-corner-deco.bottom-right {
+  bottom: 3px; right: 3px; border-width: 0 2px 2px 0;
+}
+
+.quiz-header-wrap {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.quiz-system-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 8px #00f2fe;
+  animation: cyberDotPulse 1.2s infinite;
+}
+
+.quiz-header {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #00f2fe;
+  text-shadow: 0 0 10px rgba(0, 242, 254, 0.7);
+}
+
+.quiz-topic-badge {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffd200;
+  background: rgba(245, 166, 35, 0.15);
+  border: 1px solid rgba(245, 166, 35, 0.45);
+  padding: 2px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+}
+
+.quiz-timer-bar {
+  width: 100%;
+  height: 6px;
+  background: #080d1a;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 242, 254, 0.35);
+}
+
+.quiz-timer-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #00f2fe, #f5a623);
+  box-shadow: 0 0 10px #00f2fe;
+  transition: width 0.1s linear;
+}
+
+.cyber-board {
+  width: 100%;
+  background: rgba(5, 8, 16, 0.95);
+  border-radius: 8px;
+  padding: 8px 14px;
+  text-align: center;
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  box-shadow: inset 0 0 18px rgba(0, 242, 254, 0.08);
+}
+
+.quiz-board-header {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.cyber-question {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 800;
+  color: #f8fafc;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+/* 4 Tombol Pilihan Jawaban Taktis */
+.cyber-options-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quiz-opt-btn {
+  height: 42px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 12px;
+  gap: 10px;
+  transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+}
+
+.quiz-opt-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.2);
+}
+
+.quiz-opt-btn:active {
+  transform: translateY(1px);
+}
+
+.opt-key-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.opt-val-text {
+  flex: 1;
+  text-align: center;
+}
+
+.btn-cyber-red {
+  background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+  border: 1px solid #fb7185;
+}
+.btn-cyber-blue {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+}
+.btn-cyber-yellow {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  border: 1px solid #fcd34d;
+}
+.btn-cyber-green {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border: 1px solid #34d399;
+}
+
+.quiz-hotkey-hint {
+  font-size: 9px;
+  color: #94a3b8;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.keyboard-icon {
+  font-size: 12px;
+}
+
+/* Efek Getar Salah */
+.shake-wrong {
+  animation: cyberShake 0.4s ease-in-out;
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.8) !important;
+}
+
+@keyframes cyberShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+@keyframes cyberPopIn {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================
+   VICTORY & DEFEAT MODALS
+   ========================================== */
+.cyber-modal-box {
+  max-width: 420px;
+  padding: 18px 24px;
+}
+
+.victory-box {
+  border-color: #10b981;
+  box-shadow: 
+    0 0 35px rgba(16, 185, 129, 0.4),
+    0 20px 50px rgba(0, 0, 0, 0.95);
+}
+
+.victory-box .modal-corner-deco {
+  border-color: #10b981;
+}
+
+.victory-header-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #10b981;
+  letter-spacing: 1.5px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.menu-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.cyber-win-title {
+  color: #10b981;
+  text-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+}
+
+.stars-rating {
+  font-size: 28px;
+  color: #ffd200;
+  text-shadow: 0 0 12px rgba(255, 210, 0, 0.8);
+  letter-spacing: 4px;
+}
+
+.modal-desc {
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+  color: #cbd5e1;
+}
+
+.defeat-box {
+  border-color: #ef4444;
+  box-shadow: 
+    0 0 35px rgba(239, 68, 68, 0.4),
+    0 20px 50px rgba(0, 0, 0, 0.95);
+}
+
+.defeat-box .modal-corner-deco {
+  border-color: #ef4444;
+}
+
+.defeat-header-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ef4444;
+  letter-spacing: 1.5px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.cyber-defeat-title {
+  color: #ef4444;
+  text-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+}
+
+.menu-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* Primary & Secondary Buttons */
+.primary-btn, .cyber-btn-primary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid #34d399;
+  border-radius: 8px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+}
+
+.primary-btn:hover, .cyber-btn-primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
+  transform: translateY(-2px);
+}
+
+.primary-btn:active, .cyber-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.defeat-retry-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+}
+
+.defeat-retry-btn:hover {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+}
+
+.secondary-btn, .cyber-btn-secondary {
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  border-radius: 8px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+}
+
+.secondary-btn:hover, .cyber-btn-secondary:hover {
+  background: rgba(51, 65, 85, 0.95);
+  border-color: #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.3);
+  transform: translateY(-2px);
+}
+
+.secondary-btn:active, .cyber-btn-secondary:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================
+   PAUSE MODAL & CHEATSHEET
+   ========================================== */
+.pause-box {
+  max-width: 440px;
+}
+
+.pause-title {
+  color: #00f2fe;
+  text-shadow: 0 0 15px rgba(0, 242, 254, 0.7);
+}
+
+.pause-cheatsheet {
+  width: 100%;
+  background: rgba(7, 12, 24, 0.9);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 10px 14px;
+}
+
+.cheatsheet-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  color: #ffd200;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.cheatsheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.cheat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.cheat-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  padding: 1px 6px;
+  border-radius: 4px;
+  min-width: 44px;
+  text-align: center;
+}
+
+.cheat-label {
+  color: #cbd5e1;
+}
+
+/* ==========================================
+   MENU UTAMA & SELECTION SCREEN (CYBER ARCADE)
+   ========================================== */
+.cyber-menu-box {
+  max-width: 460px;
+  width: 94%;
+}
+
+.menu-header-bar {
+  text-align: center;
+}
+
+.game-logo-tag {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+.game-logo-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  background: linear-gradient(90deg, #00f2fe 0%, #4facfe 50%, #ffd200 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.6));
+  line-height: 1.1;
+}
+
+.game-edition-tag {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffd200;
+  letter-spacing: 1px;
+}
+
+/* Kartu Profil Pemain */
+.player-profile-card {
+  width: 100%;
+  background: rgba(13, 20, 36, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-avatar-frame {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-avatar {
+  font-size: 18px;
+}
+
+.player-rank {
+  font-size: 11px;
+  font-weight: 800;
+  color: #00f2fe;
+}
+
+.player-status-sub {
+  font-size: 9px;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.status-pulse-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 5px #10b981;
+}
+
+.profile-stats {
+  font-size: 10px;
+  color: #e2e8f0;
+}
+
+.sector-selection-title {
+  width: 100%;
+  font-size: 10px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sector-title-icon {
+  font-size: 11px;
+}
+
+/* Grid 10 Sektor (5 Kolom x 2 Baris) */
+.cyber-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 100%;
+  max-height: 220px;
+}
+
+.level-select-btn {
+  border-radius: 8px;
+  padding: 6px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 78px;
+  text-align: center;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.level-select-btn.unlocked {
+  background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%);
+  border: 1px solid #00f2fe;
+  box-shadow: 
+    0 0 10px rgba(0, 242, 254, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+.level-select-btn.unlocked:hover {
+  border-color: #ffd200;
+  box-shadow: 0 0 18px rgba(245, 166, 35, 0.45);
+  transform: translateY(-2px);
+}
+
+.level-select-btn.unlocked:active {
+  transform: translateY(1px);
+}
+
+.level-select-btn.locked {
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.lvl-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.15);
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+
+.locked-badge {
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.1);
+}
+
+.lvl-title {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 2px 0;
+  line-height: 1.1;
+}
+
+.lvl-topic-tag {
+  font-size: 8px;
+  color: #ffd200;
+  background: rgba(245, 166, 35, 0.12);
+  padding: 1px 4px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.lvl-topic-tag.locked {
+  color: #94a3b8;
+  background: transparent;
+}
+
+.level-stars {
+  font-size: 10px;
+  color: #ffd200;
+  text-shadow: 0 0 6px rgba(255, 210, 0, 0.6);
+  margin-top: 2px;
+}
+
+.level-stars-locked {
+  font-size: 7px;
+  color: #f43f5e;
+}
+
+.menu-footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.game-version-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: #64748b;
+}
+
+.reset-link-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.reset-link-btn:hover {
+  color: #ef4444;
+}

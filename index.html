@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WAR OF REALMS: MATH ARENA (SMA & MABA EDITION)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Layar Utama Game (Fixed Landscape 480x216 px, Default Skala 2x 960x432 px) -->
+  <div id="gameWrapper">
+    <!-- CRT Scanline & Ambient Cyber Vignette Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Top HUD Action Buttons & Quick Status -->
+    <div class="top-hud-strip">
+      <button id="btnPause" class="top-hud-btn pause-hud-btn" title="Jeda Permainan (Spasi)">
+        <span class="hud-btn-icon">⏸️</span>
+        <span class="hud-btn-text">JEDA</span>
+        <span class="hud-key-tag">[SPACE]</span>
+      </button>
+
+      <div class="top-hud-center-tip">
+        <span class="cyber-pulse-dot"></span>
+        <span class="tactical-hud-label">TACTICAL COMBAT ARENA</span>
+      </div>
+
+      <button id="btnSpeed" class="top-hud-btn speed-hud-btn" title="Ubah Kecepatan Game (1x / 2x)">
+        <span class="hud-btn-icon">⚡</span>
+        <span class="hud-btn-text">1x</span>
+      </button>
+    </div>
+
+    <!-- Canvas Render Internal Pixel-Perfect -->
+    <canvas id="gameCanvas" width="480" height="216"></canvas>
+
+    <!-- Bottom Deck Bar (Tinggi Proporsional ~27-28%) -->
+    <div id="bottomDeckBar">
+      <!-- Tombol Aksi Kiri: Kuis Mana Instan [Q] -->
+      <button id="btnManaQuiz" class="action-btn mana-quiz-btn" title="Jawab Soal Matematika untuk Tambah Mana Instan! (Tombol Q)">
+        <div class="action-btn-glow"></div>
+        <div class="action-btn-content">
+          <span class="action-icon">⚡</span>
+          <span class="btn-main-label">MANA BURST</span>
+          <small class="btn-sub-label">SOAL [Q]</small>
+        </div>
+      </button>
+
+      <!-- Bagian Tengah: Tabung Energi Mana & 5 Kartu Pasukan -->
+      <div class="deck-center">
+        <!-- Tabung Indikator Mana Berteknologi Plasma -->
+        <div class="mana-gauge-wrap">
+          <div class="mana-header-row">
+            <span class="mana-label-tag">⚡ ENERGY CELL</span>
+            <span id="manaText" class="mana-text">35 / 150</span>
+          </div>
+          <div class="mana-track-container">
+            <span class="mana-icon">💎</span>
+            <div class="mana-track">
+              <div id="manaFill" class="mana-fill">
+                <div class="mana-shimmer"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Slot Kartu Panggil Pasukan Cyber-Rune -->
+        <div id="deckContainer" class="deck-cards">
+          <!-- Unit 1: Prajurit Kayu (Melee Scout) -->
+          <button class="card-btn card-unit-1" data-index="0" title="Panggil Prajurit Kayu (Tekan 1)">
+            <div class="card-hotkey-badge">1</div>
+            <div class="card-cost-wrap">
+              <span class="cost-gem">💎</span><span class="card-cost">20</span>
+            </div>
+            <span class="card-avatar">⚔️</span>
+            <span class="card-name">Prajurit</span>
+            <div class="cd-overlay"></div>
+          </button>
+
+          <!-- Unit 2: Pemanah Gelembung (Ranged DPS) -->
+          <button class="card-btn card-unit-2" data-index="1" title="Panggil Pemanah Gelembung (Tekan 2)">
+            <div class="card-hotkey-badge">2</div>
+            <div class="card-cost-wrap">
+              <span class="cost-gem">💎</span><span class="card-cost">35</span>
+            </div>
+            <span class="card-avatar">🏹</span>
+            <span class="card-name">Pemanah</span>
+            <div class="cd-overlay"></div>
+          </button>
+
+          <!-- Unit 3: Penyihir Bintang (Arcane AoE) -->
+          <button class="card-btn card-unit-3" data-index="2" title="Panggil Penyihir Bintang (Tekan 3)">
+            <div class="card-hotkey-badge">3</div>
+            <div class="card-cost-wrap">
+              <span class="cost-gem">💎</span><span class="card-cost">50</span>
+            </div>
+            <span class="card-avatar">🪄</span>
+            <span class="card-name">Penyihir</span>
+            <div class="cd-overlay"></div>
+          </button>
+
+          <!-- Unit 4: Ksatria Kuda Poni (Fast Charger) -->
+          <button class="card-btn card-unit-4" data-index="3" title="Panggil Ksatria Kuda Poni (Tekan 4)">
+            <div class="card-hotkey-badge">4</div>
+            <div class="card-cost-wrap">
+              <span class="cost-gem">💎</span><span class="card-cost">80</span>
+            </div>
+            <span class="card-avatar">🦄</span>
+            <span class="card-name">Kuda Poni</span>
+            <div class="cd-overlay"></div>
+          </button>
+
+          <!-- Unit 5: Robot Mainan Golem (Super Heavy Tank) -->
+          <button class="card-btn card-unit-5" data-index="4" title="Panggil Robot Mainan Golem (Tekan 5)">
+            <div class="card-hotkey-badge">5</div>
+            <div class="card-cost-wrap">
+              <span class="cost-gem">💎</span><span class="card-cost">150</span>
+            </div>
+            <span class="card-avatar">🤖</span>
+            <span class="card-name">Robot</span>
+            <div class="cd-overlay"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi Kanan: Reparasi Benteng [E] -->
+      <button id="btnHealBase" class="action-btn heal-base-btn" title="Jawab Soal Matematika untuk Perbaiki Benteng! (Tombol E)">
+        <div class="action-btn-glow"></div>
+        <div class="action-btn-content">
+          <span class="action-icon">❤️</span>
+          <span class="btn-main-label">BASE REPAIR</span>
+          <small class="btn-sub-label">BASE [E]</small>
+        </div>
+      </button>
+    </div>
+
+    <!-- ==========================================
+         MODAL DIALOG POP-UP KUIS MATEMATIKA (CYBER TERMINAL)
+         ========================================== -->
+    <div id="quizModal" class="modal-overlay">
+      <div id="quizDialog" class="quiz-box cyber-quiz-box">
+        <div class="quiz-corner-deco top-left"></div>
+        <div class="quiz-corner-deco top-right"></div>
+        <div class="quiz-corner-deco bottom-left"></div>
+        <div class="quiz-corner-deco bottom-right"></div>
+
+        <div class="quiz-header-wrap">
+          <div class="quiz-system-status">
+            <span class="pulse-indicator"></span>
+            <div class="quiz-header">⚡ TACTICAL CALCULATION TERMINAL ⚡</div>
+          </div>
+          <div id="quizTopicBadge" class="quiz-topic-badge">[TOPIK: MATEMATIKA]</div>
+        </div>
+        
+        <!-- Timer Bar 14 Detik -->
+        <div class="quiz-timer-bar">
+          <div id="quizTimerFill" class="quiz-timer-fill"></div>
+        </div>
+
+        <!-- Papan Soal Besar dengan High Contrast Display -->
+        <div class="quiz-board cyber-board">
+          <div class="quiz-board-header">MASALAH MATEMATIKA AKTIF:</div>
+          <div id="quizQuestionText" class="quiz-question cyber-question">2 + 3 = ?</div>
+        </div>
+
+        <!-- 4 Tombol Pilihan Jawaban Taktis -->
+        <div id="quizOptions" class="quiz-options-grid cyber-options-grid">
+          <!-- Generate dinamis dari KidsMathQuizGenerator -->
+        </div>
+
+        <!-- Hotkey Hint untuk Siswa / Mahasiswa -->
+        <div class="quiz-hotkey-hint">
+          <span class="keyboard-icon">⌨️</span>
+          <span>Jawab Cepat: Tekan tombol <strong>[A] [B] [C] [D]</strong> atau <strong>[1] [2] [3] [4]</strong> di keyboard</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL KEMENANGAN (VICTORY / SECTOR SECURED)
+         ========================================== -->
+    <div id="victoryModal" class="modal-overlay">
+      <div class="menu-box cyber-modal-box cyber-win-box victory-box">
+        <div class="modal-corner-deco top-left"></div>
+        <div class="modal-corner-deco top-right"></div>
+        <div class="modal-corner-deco bottom-left"></div>
+        <div class="modal-corner-deco bottom-right"></div>
+
+        <div class="victory-header-badge">SEKTOR BERHASIL DITAKLUKKAN!</div>
+        <div class="menu-title cyber-win-title">🎉 HORE MENANG! 🎉</div>
+        <div id="victoryStars" class="stars-rating">⭐⭐⭐</div>
+        <p id="victoryMessage" class="modal-desc victory-desc">Kastel lawan berhasil kamu taklukkan!</p>
+        
+        <div class="menu-buttons">
+          <button id="btnNextLevel" class="primary-btn cyber-btn-primary">Level Berikutnya ➔</button>
+          <button id="btnRetry" class="secondary-btn cyber-btn-secondary">Main Lagi</button>
+          <button id="btnBackToMenu" class="secondary-btn cyber-btn-secondary">Pilih Level</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL COBA LAGI (DEFEAT TANPA FRUSTRASI)
+         ========================================== -->
+    <div id="defeatModal" class="modal-overlay">
+      <div class="menu-box cyber-modal-box cyber-defeat-box defeat-box">
+        <div class="modal-corner-deco top-left"></div>
+        <div class="modal-corner-deco top-right"></div>
+        <div class="modal-corner-deco bottom-left"></div>
+        <div class="modal-corner-deco bottom-right"></div>
+
+        <div class="defeat-header-badge">PERTAHANAN JEBOL</div>
+        <div class="menu-title cyber-defeat-title">😊 AYO COBA LAGI! 😊</div>
+        <p class="modal-desc defeat-desc">Jangan menyerah, kamu pasti bisa! Manfaatkan bonus kuis Mana [Q] untuk memanggil pasukan lebih cepat saat musuh berkerumun.</p>
+        
+        <div class="menu-buttons">
+          <button id="btnDefeatRetry" class="primary-btn cyber-btn-primary defeat-retry-btn">Coba Lagi ↺</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL JEDA (PAUSE SCREEN & SHORTCUT GUIDE)
+         ========================================== -->
+    <div id="pauseModal" class="modal-overlay">
+      <div class="menu-box cyber-modal-box pause-box">
+        <div class="modal-corner-deco top-left"></div>
+        <div class="modal-corner-deco top-right"></div>
+        <div class="modal-corner-deco bottom-left"></div>
+        <div class="modal-corner-deco bottom-right"></div>
+
+        <div class="menu-title pause-title">⏸️ PERMAINAN DIJEDA</div>
+        
+        <div class="pause-cheatsheet">
+          <div class="cheatsheet-title">PANDUAN KONTROL & PINTASAN KEYBOARD:</div>
+          <div class="cheatsheet-grid">
+            <div class="cheat-item"><span class="cheat-key">[1] - [5]</span><span class="cheat-label">Panggil Unit Pasukan</span></div>
+            <div class="cheat-item"><span class="cheat-key">[Q]</span><span class="cheat-label">Kuis Mana (+50 Mana Instan)</span></div>
+            <div class="cheat-item"><span class="cheat-key">[E]</span><span class="cheat-label">Kuis Reparasi (+25% HP Benteng)</span></div>
+            <div class="cheat-item"><span class="cheat-key">[SPACE]</span><span class="cheat-label">Jeda / Lanjutkan Game</span></div>
+            <div class="cheat-item"><span class="cheat-key">[A][B][C][D]</span><span class="cheat-label">Pilih Opsi Kuis Kilat</span></div>
+            <div class="cheat-item"><span class="cheat-key">DRAG / GESER</span><span class="cheat-label">Geser Kamera Medan Tempur</span></div>
+          </div>
+        </div>
+
+        <div class="menu-buttons">
+          <button id="btnResume" class="primary-btn cyber-btn-primary">Lanjutkan ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         MODAL MENU UTAMA (LEVEL SELECTION)
+         ========================================== -->
+    <div id="menuModal" class="modal-overlay" style="display: flex;">
+      <div class="menu-box cyber-menu-box">
+        <!-- Logo & Title Bar -->
+        <div class="menu-header-bar">
+          <div class="game-logo-tag">ARENA PERTEMPURAN MATEMATIKA STRATEGIS</div>
+          <div class="game-logo-title">WAR OF REALMS</div>
+          <div class="game-edition-tag">⚡ MATH COMBAT ARENA • SMA & MABA EDITION ⚡</div>
+        </div>
+
+        <!-- Kartu Profil Pemain / Akademik -->
+        <div class="player-profile-card">
+          <div class="profile-left">
+            <div class="profile-avatar-frame">
+              <span class="profile-avatar">🎓</span>
+            </div>
+            <div>
+              <div id="playerRankBadge" class="player-rank">Kadet Aljabar (SMA / Maba)</div>
+              <div class="player-status-sub">
+                <span class="status-pulse-dot"></span>
+                <span>Status: Siap Bertempur</span>
+              </div>
+            </div>
+          </div>
+          <div id="playerStatsText" class="profile-stats">⭐ <strong>0/30</strong> Bintang • 🔓 Sektor: <strong>1/10</strong></div>
+        </div>
+
+        <div class="sector-selection-title">
+          <span class="sector-title-icon">🎯</span>
+          <span>PILIH SEKTOR PERTEMPURAN & MATERI:</span>
+        </div>
+        
+        <!-- Daftar 10 Level Petualangan -->
+        <div id="levelList" class="level-grid cyber-grid"></div>
+
+        <div class="menu-footer">
+          <span class="game-version-badge">v4.0 Cyber Edition</span>
+          <button id="btnResetProgress" class="reset-link-btn" title="Reset semua progress dan mulai dari Level 1">↺ Reset Progress</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entry Script JavaScript Modul ES6 -->
+  <script type="module" src="src/Game.js"></script>
+</body>
+</html>
