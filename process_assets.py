@@ -297,13 +297,16 @@ def process_vfx():
 
 def process_ui():
     print("6. Memproses Antarmuka UI...")
+    import colorsys
+    from PIL import ImageDraw
+
     # 1. Pisahkan hud_mana_tube + hud_hp_bar
     src_combo = os.path.join(RAW_BACKUP_DIR, "ui", "hud_mana_tube + hud_hp_bar.png")
     if os.path.exists(src_combo):
         img_combo = Image.open(src_combo).convert("RGB")
         c = img_combo.getpixel((5, 5))
-        # Tube: col (153, 433), row (154, 747)
-        tube_crop = img_combo.crop((153, 154, 433, 747))
+        # Tube: col (153, 433), row (155, 745)
+        tube_crop = img_combo.crop((153, 155, 433, 745))
         tube_rgba = chroma_key_magenta(tube_crop, c)
         tube_bbox = get_tight_bbox(tube_rgba)
         if tube_bbox:
@@ -313,31 +316,88 @@ def process_ui():
         tube_final.save(os.path.join(ASSETS_DIR, "ui", "hud_mana_tube.png"), "PNG")
         print("   [OK] hud_mana_tube.png: 24x48 px")
 
-        # HP Bar: col (589, 1671), row (154, 747)
-        hp_crop = img_combo.crop((589, 154, 1671, 747))
+        # HP Bar: col (589, 1671), row (290, 565) - Bounding Box Tepat!
+        hp_crop = img_combo.crop((589, 290, 1671, 565))
         hp_rgba = chroma_key_magenta(hp_crop, c)
         hp_bbox = get_tight_bbox(hp_rgba)
         if hp_bbox:
-            hp_final = hp_rgba.crop(hp_bbox).resize((96, 16), Image.Resampling.LANCZOS)
+            hp_clean = hp_rgba.crop(hp_bbox)
         else:
-            hp_final = hp_rgba.resize((96, 16), Image.Resampling.LANCZOS)
-        hp_final.save(os.path.join(ASSETS_DIR, "ui", "hud_hp_bar.png"), "PNG")
-        print("   [OK] hud_hp_bar.png: 96x16 px")
+            hp_clean = hp_rgba
+        
+        # Player HP Bar (96x22 px)
+        player_bar = hp_clean.resize((96, 22), Image.Resampling.LANCZOS)
+        player_bar.save(os.path.join(ASSETS_DIR, "ui", "hud_hp_bar_player.png"), "PNG")
+        player_bar.save(os.path.join(ASSETS_DIR, "ui", "hud_hp_bar.png"), "PNG")
+
+        # Enemy HP Bar (Varian Merah/Crimson)
+        def make_red_variant(img):
+            img_copy = img.copy()
+            pixels = img_copy.load()
+            w, h = img_copy.size
+            for y in range(h):
+                for x in range(w):
+                    r, g, b, a = pixels[x, y]
+                    if a == 0: continue
+                    h_val, s_val, v_val = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
+                    if 0.15 <= h_val <= 0.65:
+                        new_h = (h_val - 0.33) % 1.0
+                        new_r, new_g, new_b = colorsys.hsv_to_rgb(new_h, min(1.0, s_val * 1.2), v_val)
+                        pixels[x, y] = (int(new_r * 255), int(new_g * 255), int(new_b * 255), a)
+            return img_copy
+
+        enemy_bar = make_red_variant(player_bar)
+        enemy_bar.save(os.path.join(ASSETS_DIR, "ui", "hud_hp_bar_enemy.png"), "PNG")
+
+        # Shield Icons (18x18 px)
+        shield_crop = hp_clean.crop((0, 0, int(hp_clean.width * 0.24), hp_clean.height))
+        sh_bbox = get_tight_bbox(shield_crop)
+        if sh_bbox:
+            shield_icon = shield_crop.crop(sh_bbox).resize((18, 18), Image.Resampling.LANCZOS)
+        else:
+            shield_icon = shield_crop.resize((18, 18), Image.Resampling.LANCZOS)
+        shield_icon.save(os.path.join(ASSETS_DIR, "ui", "icon_shield_player.png"), "PNG")
+        enemy_shield = make_red_variant(shield_icon)
+        enemy_shield.save(os.path.join(ASSETS_DIR, "ui", "icon_shield_enemy.png"), "PNG")
+
+        # Frame dengan slot transparan gelap untuk live dynamic fill
+        def create_frame(src_img, out_path):
+            f_img = src_img.copy()
+            pixels = f_img.load()
+            for y in range(7, 15):
+                for x in range(25, 91):
+                    pixels[x, y] = (10, 16, 28, 220)
+            f_img.save(out_path)
+
+        create_frame(player_bar, os.path.join(ASSETS_DIR, "ui", "hud_hp_bar_frame_player.png"))
+        create_frame(enemy_bar, os.path.join(ASSETS_DIR, "ui", "hud_hp_bar_frame_enemy.png"))
+        print("   [OK] hud_hp_bar_player.png, hud_hp_bar_enemy.png, frames & icons: 96x22 px")
 
     # 2. Card Unit Frame
     src_card = os.path.join(RAW_BACKUP_DIR, "ui", "card_unit_frame.png")
     if os.path.exists(src_card):
         img_card = Image.open(src_card).convert("RGB")
         c = img_card.getpixel((5, 5))
+        # Frame Normal
         card_crop = img_card.crop((179, 87, 773, 746))
         card_rgba = chroma_key_magenta(card_crop, c)
         card_bbox = get_tight_bbox(card_rgba)
         if card_bbox:
-            card_final = card_rgba.crop(card_bbox).resize((32, 32), Image.Resampling.LANCZOS)
+            card_final = card_rgba.crop(card_bbox).resize((62, 68), Image.Resampling.LANCZOS)
         else:
-            card_final = card_rgba.resize((32, 32), Image.Resampling.LANCZOS)
+            card_final = card_rgba.resize((62, 68), Image.Resampling.LANCZOS)
         card_final.save(os.path.join(ASSETS_DIR, "ui", "card_unit_frame.png"), "PNG")
-        print("   [OK] card_unit_frame.png: 32x32 px")
+
+        # Frame Active / Cooldown
+        card_crop_act = img_card.crop((973, 87, 1564, 746))
+        card_rgba_act = chroma_key_magenta(card_crop_act, c)
+        act_bbox = get_tight_bbox(card_rgba_act)
+        if act_bbox:
+            act_final = card_rgba_act.crop(act_bbox).resize((62, 68), Image.Resampling.LANCZOS)
+        else:
+            act_final = card_rgba_act.resize((62, 68), Image.Resampling.LANCZOS)
+        act_final.save(os.path.join(ASSETS_DIR, "ui", "card_unit_frame_active.png"), "PNG")
+        print("   [OK] card_unit_frame.png & card_unit_frame_active.png: 62x68 px")
 
     # 3. Popup Quiz Dialog
     src_dlg = os.path.join(RAW_BACKUP_DIR, "ui", "popup_quiz_dialog.png")
@@ -348,11 +408,30 @@ def process_ui():
         dlg_rgba = chroma_key_magenta(dlg_crop, c)
         dlg_bbox = get_tight_bbox(dlg_rgba)
         if dlg_bbox:
-            dlg_final = dlg_rgba.crop(dlg_bbox).resize((260, 100), Image.Resampling.LANCZOS)
+            dlg_final = dlg_rgba.crop(dlg_bbox).resize((420, 150), Image.Resampling.LANCZOS)
         else:
-            dlg_final = dlg_rgba.resize((260, 100), Image.Resampling.LANCZOS)
+            dlg_final = dlg_rgba.resize((420, 150), Image.Resampling.LANCZOS)
         dlg_final.save(os.path.join(ASSETS_DIR, "ui", "popup_quiz_dialog.png"), "PNG")
-        print("   [OK] popup_quiz_dialog.png: 260x100 px")
+        print("   [OK] popup_quiz_dialog.png: 420x150 px")
+
+    # 4. Radar Frame Asset
+    rf = Image.new('RGBA', (160, 16), (0, 0, 0, 0))
+    d = ImageDraw.Draw(rf)
+    d.rectangle([1, 1, 158, 14], fill=(6, 12, 24, 230), outline=(0, 242, 254, 80))
+    for y in range(3, 14, 3):
+        d.line([(2, y), (157, y)], fill=(0, 242, 254, 25))
+    corner_len = 5
+    cyan = (0, 242, 254, 255)
+    d.line([(0, 0), (corner_len, 0)], fill=cyan)
+    d.line([(0, 0), (0, corner_len)], fill=cyan)
+    d.line([(159 - corner_len, 0), (159, 0)], fill=cyan)
+    d.line([(159, 0), (159, corner_len)], fill=cyan)
+    d.line([(0, 15), (corner_len, 15)], fill=cyan)
+    d.line([(0, 15 - corner_len), (0, 15)], fill=cyan)
+    d.line([(159 - corner_len, 15), (159, 15)], fill=cyan)
+    d.line([(159, 15 - corner_len), (159, 15)], fill=cyan)
+    rf.save(os.path.join(ASSETS_DIR, "ui", "hud_radar_frame.png"), "PNG")
+    print("   [OK] hud_radar_frame.png: 160x16 px")
 
 if __name__ == "__main__":
     make_dirs()

@@ -87,7 +87,7 @@ export class PixelRenderer {
     }
 
     // 8. Gambar Top HUD (Status HP, Minimap Radar, 1x/2x, Pause)
-    this.drawTopHud(combatManager, cameraX, hudState);
+    this.drawTopHud(combatManager, cameraX, hudState, dt);
   }
 
   // ==========================================
@@ -819,93 +819,273 @@ export class PixelRenderer {
   }
 
   // ==========================================
-  // TOP HUD (24 px)
+  // TOP HUD (28 px)
+  // Status Bar HP Kastel Pemain & Musuh, Minimap Radar, Tactical Arena Title
+  // Menggunakan Aset Resmi C:\GAME\assets\ui
   // ==========================================
-  drawTopHud(combatManager, cameraX, hudState) {
+  drawTopHud(combatManager, cameraX, hudState, dt = 0.016) {
     const ctx = this.ctx;
     const w = 480;
+    this.hudAnimTimer = (this.hudAnimTimer || 0) + (dt || 0.016);
+    const t = this.hudAnimTimer;
 
-    // Background Top HUD transparan gelap lembut
-    ctx.fillStyle = 'rgba(15, 20, 30, 0.7)';
-    ctx.fillRect(0, 0, w, 24);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.fillRect(0, 23, w, 1);
+    // 0. Background Top HUD Glassmorphism Strip
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, 28);
+    bgGrad.addColorStop(0, 'rgba(8, 14, 28, 0.95)');
+    bgGrad.addColorStop(1, 'rgba(4, 8, 16, 0.88)');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, 28);
 
-    // 1. Status Bar HP Kastel Pemain (Kiri)
-    const playerHp = combatManager.playerCastle.hp;
-    const playerMaxHp = combatManager.playerCastle.maxHp;
-    const pRatio = Math.max(0, playerHp / playerMaxHp);
+    // Garis Bawah Aksen Neon Cyan
+    ctx.fillStyle = 'rgba(0, 242, 254, 0.35)';
+    ctx.fillRect(0, 27, w, 1);
 
-    ctx.fillStyle = '#2ECC71';
-    ctx.fillRect(40, 7, Math.round(75 * pRatio), 10);
-    ctx.strokeStyle = '#FFFFFF';
+    // 1. Status Bar HP Kastel Pemain (Kiri: X: 48, Y: 3, W: 96, H: 22)
+    const playerCastle = combatManager.playerCastle;
+    const playerHp = Math.max(0, playerCastle ? playerCastle.hp : 0);
+    const playerMaxHp = playerCastle ? playerCastle.maxHp : 1000;
+    const pRatio = Math.max(0, Math.min(1, playerHp / playerMaxHp));
+    const pBarX = 48;
+    const pBarY = 3;
+    const pFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_player') || this.assetLoader.getImage('hud_hp_bar');
+
+    // Slot HP Pemain (Di dalam frame: X: 25..90, Y: 7..14 -> w=66, h=8)
+    const pSlotX = pBarX + 25;
+    const pSlotY = pBarY + 7;
+    const pSlotW = 66;
+    const pSlotH = 8;
+
+    // Background slot gelap
+    ctx.fillStyle = 'rgba(5, 10, 20, 0.95)';
+    ctx.fillRect(pSlotX, pSlotY, pSlotW, pSlotH);
+
+    // Health Fill Pemain
+    const pFillW = Math.round(pSlotW * pRatio);
+    if (pFillW > 0) {
+      const pFillGrad = ctx.createLinearGradient(pSlotX, pSlotY, pSlotX + pFillW, pSlotY);
+      if (pRatio > 0.45) {
+        pFillGrad.addColorStop(0, '#00f2fe');
+        pFillGrad.addColorStop(1, '#10b981');
+      } else if (pRatio > 0.2) {
+        pFillGrad.addColorStop(0, '#ffd200');
+        pFillGrad.addColorStop(1, '#f59e0b');
+      } else {
+        const pulse = 0.7 + 0.3 * Math.sin(t * 10);
+        pFillGrad.addColorStop(0, `rgba(255, 71, 87, ${pulse})`);
+        pFillGrad.addColorStop(1, `rgba(235, 47, 6, ${pulse})`);
+      }
+      ctx.fillStyle = pFillGrad;
+      ctx.fillRect(pSlotX, pSlotY, pFillW, pSlotH);
+
+      // Highlight Sheen tipis
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.fillRect(pSlotX, pSlotY, pFillW, 2);
+    }
+
+    // Gambar Frame Aset HP Pemain
+    if (pFrameImg) {
+      ctx.drawImage(pFrameImg, pBarX, pBarY, 96, 22);
+    } else {
+      ctx.strokeStyle = '#00f2fe';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(pSlotX - 1, pSlotY - 1, pSlotW + 2, pSlotH + 2);
+    }
+
+    // Label Shield Pemain & Teks Angka HP
+    ctx.save();
+    ctx.font = 'bold 7px "Orbitron", sans-serif';
+    ctx.fillStyle = '#00f2fe';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#00f2fe';
+    ctx.shadowBlur = 4;
+    ctx.fillText('KITA', pBarX + 11, pBarY + 14);
+
+    // Teks Angka HP di dalam slot bar
+    ctx.font = 'bold 7.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2 + 1, pSlotY + 7);
+    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2 - 1, pSlotY + 7);
+    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2, pSlotY + 8);
+    ctx.fillStyle = pRatio > 0.2 ? '#ffffff' : '#ffd200';
+    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2, pSlotY + 7);
+    ctx.restore();
+
+    // 2. Status Bar HP Kastel Musuh (Kanan: X: 336, Y: 3, W: 96, H: 22)
+    const enemyCastle = combatManager.enemyCastle;
+    const enemyHp = Math.max(0, enemyCastle ? enemyCastle.hp : 0);
+    const enemyMaxHp = enemyCastle ? enemyCastle.maxHp : 1000;
+    const eRatio = Math.max(0, Math.min(1, enemyHp / enemyMaxHp));
+    const eBarX = 336;
+    const eBarY = 3;
+    const eFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_enemy') || this.assetLoader.getImage('hud_hp_bar_enemy');
+
+    // Slot HP Musuh (Flipped Frame: X: 5..70 -> w=66, h=8, Skull di kanan X: 72..95)
+    const eSlotX = eBarX + 5;
+    const eSlotY = eBarY + 7;
+    const eSlotW = 66;
+    const eSlotH = 8;
+
+    // Background slot gelap
+    ctx.fillStyle = 'rgba(5, 10, 20, 0.95)';
+    ctx.fillRect(eSlotX, eSlotY, eSlotW, eSlotH);
+
+    // Health Fill Musuh (Mengalir mundur dari kanan ke kiri menuju benteng)
+    const eFillW = Math.round(eSlotW * eRatio);
+    if (eFillW > 0) {
+      const eFillX = eSlotX + (eSlotW - eFillW);
+      const eFillGrad = ctx.createLinearGradient(eFillX, eSlotY, eFillX + eFillW, eSlotY);
+      eFillGrad.addColorStop(0, '#ff4757');
+      eFillGrad.addColorStop(1, '#be123c');
+      ctx.fillStyle = eFillGrad;
+      ctx.fillRect(eFillX, eSlotY, eFillW, eSlotH);
+
+      // Highlight Sheen tipis
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fillRect(eFillX, eSlotY, eFillW, 2);
+    }
+
+    // Gambar Frame Aset HP Musuh
+    if (eFrameImg) {
+      ctx.drawImage(eFrameImg, eBarX, eBarY, 96, 22);
+    } else {
+      ctx.strokeStyle = '#ff4757';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(eSlotX - 1, eSlotY - 1, eSlotW + 2, eSlotH + 2);
+    }
+
+    // Label Skull Musuh & Teks Angka HP
+    ctx.save();
+    ctx.font = 'bold 7px "Orbitron", sans-serif';
+    ctx.fillStyle = '#ff4757';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = '#ff4757';
+    ctx.shadowBlur = 4;
+    ctx.fillText('MUSUH', eBarX + 84, eBarY + 14);
+
+    // Teks Angka HP di dalam slot bar musuh
+    ctx.font = 'bold 7.5px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2 + 1, eSlotY + 7);
+    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2 - 1, eSlotY + 7);
+    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2, eSlotY + 8);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2, eSlotY + 7);
+    ctx.restore();
+
+    // 3. Tengah: Tactical Combat Arena Title & Minimap Radar
+    // A. Tactical Combat Arena Micro-Badge (X: 170..310, Y: 1..9)
+    ctx.save();
+    const badgeW = 136;
+    const badgeH = 8;
+    const badgeX = 240 - badgeW / 2;
+    const badgeY = 1;
+
+    ctx.fillStyle = 'rgba(6, 12, 24, 0.85)';
+    ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
+    ctx.strokeStyle = 'rgba(0, 242, 254, 0.35)';
     ctx.lineWidth = 1;
-    ctx.strokeRect(40, 7, 75, 10);
-    // Teks HP Kastel
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 8px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`KITA: ${playerHp}`, 44, 15);
+    ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
 
-    // Ikon Hati Kita
-    ctx.fillStyle = '#FF4757';
+    // Pulsing Dot Hijau
+    const dotPulse = 0.5 + 0.5 * Math.sin(t * 4);
+    ctx.fillStyle = `rgba(16, 185, 129, ${dotPulse})`;
     ctx.beginPath();
-    ctx.arc(32, 12, 5, 0, Math.PI * 2);
+    ctx.arc(badgeX + 8, badgeY + badgeH / 2, 2, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Status Bar HP Kastel Lawan (Kanan)
-    const enemyHp = combatManager.enemyCastle.hp;
-    const enemyMaxHp = combatManager.enemyCastle.maxHp;
-    const eRatio = Math.max(0, enemyHp / enemyMaxHp);
+    // Teks Judul
+    ctx.font = 'bold 6px "Orbitron", sans-serif';
+    ctx.fillStyle = '#00f2fe';
+    ctx.textAlign = 'center';
+    ctx.fillText('TACTICAL COMBAT ARENA', 240, badgeY + 6.5);
+    ctx.restore();
 
-    ctx.fillStyle = '#E74C3C';
-    ctx.fillRect(w - 115, 7, Math.round(75 * eRatio), 10);
-    ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(w - 115, 7, 75, 10);
-    // Teks HP Lawan
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 8px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`MUSUH: ${enemyHp}`, w - 110, 15);
-
-    // 3. Minimap Radar (Tengah, X: 160 -> 320)
+    // B. Minimap Radar (X: 160 -> 320, Y: 10 -> 26)
     const radarX = 160;
-    const radarY = 8;
+    const radarY = 10;
     const radarW = 160;
-    const radarH = 8;
-    const trackL = combatManager.trackLength;
+    const radarH = 16;
+    const trackL = combatManager.trackLength || 850;
+    const radarFrameImg = this.assetLoader.getImage('hud_radar_frame');
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(radarX, radarY, radarW, radarH);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.strokeRect(radarX, radarY, radarW, radarH);
-
-    // Titik Kastel
-    ctx.fillStyle = '#3498DB';
-    ctx.fillRect(radarX + 1, radarY + 1, 3, 6);
-    ctx.fillStyle = '#E74C3C';
-    ctx.fillRect(radarX + radarW - 4, radarY + 1, 3, 6);
-
-    // Titik Pasukan Pemain
-    ctx.fillStyle = '#2ECC71';
-    for (const u of combatManager.playerUnits) {
-      const rx = radarX + (u.x / trackL) * radarW;
-      ctx.fillRect(Math.round(rx), radarY + 2, 2, 4);
+    if (radarFrameImg) {
+      ctx.drawImage(radarFrameImg, radarX, radarY, radarW, radarH);
+    } else {
+      ctx.fillStyle = 'rgba(6, 12, 24, 0.9)';
+      ctx.fillRect(radarX, radarY, radarW, radarH);
+      ctx.strokeStyle = 'rgba(0, 242, 254, 0.5)';
+      ctx.strokeRect(radarX, radarY, radarW, radarH);
     }
 
-    // Titik Pasukan Musuh
-    ctx.fillStyle = '#FF9F43';
-    for (const e of combatManager.enemyUnits) {
-      const rx = radarX + (e.x / trackL) * radarW;
-      ctx.fillRect(Math.round(rx), radarY + 2, 2, 4);
-    }
-
-    // Kotak Jendela Kamera di Radar
-    const camBoxX = radarX + (cameraX / trackL) * radarW;
-    const camBoxW = (480 / trackL) * radarW;
-    ctx.strokeStyle = '#FFEAA7';
+    // Grid Garis Scanline Halus di dalam Radar
+    ctx.strokeStyle = 'rgba(0, 242, 254, 0.12)';
     ctx.lineWidth = 1;
-    ctx.strokeRect(camBoxX, radarY - 1, camBoxW, radarH + 2);
+    ctx.beginPath();
+    ctx.moveTo(radarX + radarW / 2, radarY + 2);
+    ctx.lineTo(radarX + radarW / 2, radarY + radarH - 2);
+    ctx.stroke();
+
+    // Titik Kastel Pemain (Kiri: Kotak Neon Cyan)
+    ctx.fillStyle = '#00f2fe';
+    ctx.fillRect(radarX + 2, radarY + 3, 3, 10);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(radarX + 3, radarY + 5, 1, 6);
+
+    // Titik Kastel Musuh (Kanan: Kotak Neon Merah)
+    ctx.fillStyle = '#ff4757';
+    ctx.fillRect(radarX + radarW - 5, radarY + 3, 3, 10);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(radarX + radarW - 4, radarY + 5, 1, 6);
+
+    // Titik Pasukan Pemain (Neon Emerald / Cyan Blips)
+    ctx.fillStyle = '#2ecc71';
+    for (const u of combatManager.playerUnits) {
+      if (!u.isAlive) continue;
+      const rx = radarX + Math.round((u.x / trackL) * radarW);
+      ctx.fillRect(Math.max(radarX + 6, Math.min(radarX + radarW - 8, rx - 1)), radarY + 4, 2, 8);
+    }
+
+    // Titik Pasukan Musuh (Neon Orange / Red Blips)
+    ctx.fillStyle = '#ffa502';
+    for (const e of combatManager.enemyUnits) {
+      if (!e.isAlive) continue;
+      const rx = radarX + Math.round((e.x / trackL) * radarW);
+      ctx.fillRect(Math.max(radarX + 6, Math.min(radarX + radarW - 8, rx - 1)), radarY + 4, 2, 8);
+    }
+
+    // Kotak Jendela Kamera di Radar (Interactive Reticle)
+    const camBoxX = radarX + (cameraX / trackL) * radarW;
+    const camBoxW = Math.max(16, (480 / trackL) * radarW);
+    const camBoxY = radarY - 1;
+    const camBoxH = radarH + 2;
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(255, 210, 0, 0.18)';
+    ctx.fillRect(camBoxX, camBoxY, camBoxW, camBoxH);
+
+    ctx.strokeStyle = '#ffd200';
+    ctx.shadowColor = '#ffd200';
+    ctx.shadowBlur = 4;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(camBoxX, camBoxY, camBoxW, camBoxH);
+
+    // Notch Center Reticle kamera
+    ctx.fillStyle = '#ffd200';
+    const notchX = camBoxX + camBoxW / 2;
+    ctx.fillRect(notchX - 1, camBoxY - 1, 2, 2);
+    ctx.fillRect(notchX - 1, camBoxY + camBoxH - 1, 2, 2);
+    ctx.restore();
+
+    // Range Distance Labels (0m dan trackLength)
+    ctx.font = '6px "JetBrains Mono", monospace';
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'left';
+    ctx.fillText('0m', radarX + 6, radarY + 14);
+    ctx.textAlign = 'right';
+    ctx.fillText(`${trackL}m`, radarX + radarW - 7, radarY + 14);
   }
 }

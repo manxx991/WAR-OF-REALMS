@@ -54,7 +54,15 @@ export class AssetLoader {
       { key: 'vfx_sparks', src: 'assets/sprites/vfx/vfx_sparks.png' },
       { key: 'hud_mana_tube', src: 'assets/ui/hud_mana_tube.png' },
       { key: 'hud_hp_bar', src: 'assets/ui/hud_hp_bar.png' },
+      { key: 'hud_hp_bar_player', src: 'assets/ui/hud_hp_bar_player.png' },
+      { key: 'hud_hp_bar_enemy', src: 'assets/ui/hud_hp_bar_enemy.png' },
+      { key: 'hud_hp_bar_frame_player', src: 'assets/ui/hud_hp_bar_frame_player.png' },
+      { key: 'hud_hp_bar_frame_enemy', src: 'assets/ui/hud_hp_bar_frame_enemy.png' },
+      { key: 'icon_shield_player', src: 'assets/ui/icon_shield_player.png' },
+      { key: 'icon_shield_enemy', src: 'assets/ui/icon_shield_enemy.png' },
+      { key: 'hud_radar_frame', src: 'assets/ui/hud_radar_frame.png' },
       { key: 'card_unit_frame', src: 'assets/ui/card_unit_frame.png' },
+      { key: 'card_unit_frame_active', src: 'assets/ui/card_unit_frame_active.png' },
       { key: 'popup_quiz_dialog', src: 'assets/ui/popup_quiz_dialog.png' }
     ];
 

@@ -630,19 +630,41 @@ export class Game {
     });
 
     // Tombol Pause & Speed
+    const updatePauseUI = () => {
+      const btn = document.getElementById('btnPause');
+      if (btn) {
+        btn.classList.toggle('is-paused', this.isPaused);
+        const iconSpan = btn.querySelector('.hud-btn-icon');
+        const textSpan = btn.querySelector('.hud-btn-text');
+        if (iconSpan) iconSpan.textContent = this.isPaused ? '▶' : '⏸';
+        if (textSpan) textSpan.textContent = this.isPaused ? 'LANJUT' : 'JEDA';
+      }
+      document.getElementById('pauseModal').style.display = this.isPaused ? 'flex' : 'none';
+    };
+
+    const updateSpeedUI = () => {
+      const btn = document.getElementById('btnSpeed');
+      if (btn) {
+        const isFast = this.timeScale > 1.0;
+        btn.classList.toggle('speed-2x', isFast);
+        const textSpan = btn.querySelector('.hud-btn-text');
+        if (textSpan) textSpan.textContent = `${this.timeScale}x`;
+      }
+    };
+
     document.getElementById('btnPause').addEventListener('click', () => {
       this.isPaused = !this.isPaused;
-      document.getElementById('pauseModal').style.display = this.isPaused ? 'flex' : 'none';
+      updatePauseUI();
     });
 
     document.getElementById('btnResume').addEventListener('click', () => {
       this.isPaused = false;
-      document.getElementById('pauseModal').style.display = 'none';
+      updatePauseUI();
     });
 
-    document.getElementById('btnSpeed').addEventListener('click', (e) => {
+    document.getElementById('btnSpeed').addEventListener('click', () => {
       this.timeScale = this.timeScale === 1.0 ? 2.0 : 1.0;
-      e.target.textContent = `${this.timeScale}x`;
+      updateSpeedUI();
     });
 
     // Tombol Menu & Navigasi
@@ -701,12 +723,15 @@ export class Game {
 
       const { x: internalX, y: internalY } = getCanvasInternalCoords(e);
 
-      // Cek apakah pemain mengklik area Radar Minimap di bagian atas (X: 155-325, Y: 4-24)
-      if (internalY >= 4 && internalY <= 24 && internalX >= 155 && internalX <= 325) {
+      // Cek apakah pemain mengklik area Radar Minimap di bagian atas (X: 155-325, Y: 1-28)
+      if (internalY >= 1 && internalY <= 28 && internalX >= 155 && internalX <= 325) {
         const ratio = Math.max(0, Math.min(1, (internalX - 160) / 160));
         const targetWorldX = ratio * this.combatManager.trackLength;
         this.camera.panTo(targetWorldX - 240);
-        this.isDragging = false;
+        this.isRadarDragging = true;
+        try {
+          this.canvas.setPointerCapture(e.pointerId);
+        } catch (_) {}
         return;
       }
 
@@ -721,7 +746,17 @@ export class Game {
     });
 
     this.canvas.addEventListener('pointermove', (e) => {
-      if (!this.isDragging || !this.camera) return;
+      if (!this.camera) return;
+
+      if (this.isRadarDragging) {
+        const { x: internalX } = getCanvasInternalCoords(e);
+        const ratio = Math.max(0, Math.min(1, (internalX - 160) / 160));
+        const targetWorldX = ratio * this.combatManager.trackLength;
+        this.camera.panTo(targetWorldX - 240);
+        return;
+      }
+
+      if (!this.isDragging) return;
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = 480 / rect.width;
       const dx = (this.dragStartX - e.clientX) * scaleX;
@@ -730,6 +765,7 @@ export class Game {
     });
 
     const endDrag = (e) => {
+      this.isRadarDragging = false;
       if (this.isDragging && this.camera) {
         this.isDragging = false;
         this.camera.setDragging(false);
@@ -781,7 +817,7 @@ export class Game {
         this.openQuiz(QuizType.FORTIFY);
       } else if (e.key === ' ') {
         this.isPaused = !this.isPaused;
-        document.getElementById('pauseModal').style.display = this.isPaused ? 'flex' : 'none';
+        updatePauseUI();
       }
     });
 
