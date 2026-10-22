@@ -142,6 +142,12 @@ export class Game {
     this.bossSpawned = false;
     this.battleTimer = 0;
 
+    // Kontrol Input Kamera & Drag
+    this.keysDown = new Set();
+    this.isDragging = false;
+    this.dragStartX = 0;
+    this.dragStartScrollX = 0;
+
     // Sistem Level Unlock & Stars
     this.loadProgress();
 
@@ -203,7 +209,7 @@ export class Game {
     const levelInfo = LEVEL_DATA[this.currentLevel - 1] || LEVEL_DATA[0];
     this.combatManager = new LaneCombatManager(levelInfo.trackLength, (sfx) => {
       this.soundManager.playSfx(sfx);
-    });
+    }, this.currentLevel);
     this.camera = new KidsCameraHelper(480, levelInfo.trackLength);
     this.enemySpawnTimer = 2.0; // Musuh pertama muncul setelah 2 detik
     this.bossSpawned = false;
@@ -270,6 +276,16 @@ export class Game {
 
     // 4. Update Logika Tempur 1D
     this.combatManager.update(dt);
+
+    // Kontrol Geser Kamera Manual via Tombol Panah / A / D saat kuis tidak aktif
+    if (!this.activeQuiz && !this.isDragging) {
+      if (this.keysDown.has('ArrowLeft') || this.keysDown.has('a') || this.keysDown.has('A')) {
+        this.camera.panBy(-320 * dt);
+      }
+      if (this.keysDown.has('ArrowRight') || this.keysDown.has('d') || this.keysDown.has('D')) {
+        this.camera.panBy(320 * dt);
+      }
+    }
 
     // 5. Update Kamera Auto-Follow (Smart Combat Clash Focus)
     this.camera.update(dt, this.combatManager);
@@ -666,8 +682,82 @@ export class Game {
       });
     }
 
+    // ==========================================
+    // KONTROL GESER KAMERA (DRAG, SENTUH, RADAR & WHEEL)
+    // ==========================================
+    const getCanvasInternalCoords = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = 480 / rect.width;
+      const scaleY = 216 / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+        scaleX
+      };
+    };
+
+    this.canvas.addEventListener('pointerdown', (e) => {
+      if (this.state !== 'BATTLE' || !this.camera) return;
+
+      const { x: internalX, y: internalY } = getCanvasInternalCoords(e);
+
+      // Cek apakah pemain mengklik area Radar Minimap di bagian atas (X: 155-325, Y: 4-24)
+      if (internalY >= 4 && internalY <= 24 && internalX >= 155 && internalX <= 325) {
+        const ratio = Math.max(0, Math.min(1, (internalX - 160) / 160));
+        const targetWorldX = ratio * this.combatManager.trackLength;
+        this.camera.panTo(targetWorldX - 240);
+        this.isDragging = false;
+        return;
+      }
+
+      this.isDragging = true;
+      this.dragStartX = e.clientX;
+      this.dragStartScrollX = this.camera.scrollX;
+      this.camera.setDragging(true);
+      this.canvas.classList.add('dragging');
+      try {
+        this.canvas.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    });
+
+    this.canvas.addEventListener('pointermove', (e) => {
+      if (!this.isDragging || !this.camera) return;
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = 480 / rect.width;
+      const dx = (this.dragStartX - e.clientX) * scaleX;
+      this.camera.scrollX = Math.min(Math.max(this.dragStartScrollX + dx, 0), this.camera.maxScroll);
+      this.camera.holdTimer = 2.5;
+    });
+
+    const endDrag = (e) => {
+      if (this.isDragging && this.camera) {
+        this.isDragging = false;
+        this.camera.setDragging(false);
+        this.camera.holdTimer = 2.5;
+        this.canvas.classList.remove('dragging');
+        try {
+          if (e && e.pointerId) this.canvas.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+      }
+    };
+
+    this.canvas.addEventListener('pointerup', endDrag);
+    this.canvas.addEventListener('pointercancel', endDrag);
+
+    // Mouse Wheel Scroll horizontal / vertikal untuk geser medan tempur
+    this.canvas.addEventListener('wheel', (e) => {
+      if (this.state !== 'BATTLE' || !this.camera) return;
+      e.preventDefault();
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      const rect = this.canvas.getBoundingClientRect();
+      const scaleX = 480 / rect.width;
+      this.camera.panBy(delta * scaleX * 0.8);
+    }, { passive: false });
+
     // Keyboard Shortcuts Cepat untuk Siswa & Mahasiswa
     window.addEventListener('keydown', (e) => {
+      this.keysDown.add(e.key);
+
       // Hotkey respons kuis kilat: A, B, C, D atau 1, 2, 3, 4
       if (this.activeQuiz) {
         const key = e.key.toUpperCase();
@@ -676,6 +766,11 @@ export class Game {
         if (key === 'C' || key === '3') { this.submitAnswer(2); return; }
         if (key === 'D' || key === '4') { this.submitAnswer(3); return; }
         return;
+      }
+
+      // Mencegah scroll default browser jika menekan tombol panah
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
       }
 
       if (e.key >= '1' && e.key <= '5') {
@@ -688,6 +783,15 @@ export class Game {
         this.isPaused = !this.isPaused;
         document.getElementById('pauseModal').style.display = this.isPaused ? 'flex' : 'none';
       }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      this.keysDown.delete(e.key);
+    });
+
+    window.addEventListener('blur', () => {
+      this.keysDown.clear();
+      endDrag();
     });
   }
 }

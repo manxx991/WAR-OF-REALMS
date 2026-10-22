@@ -13,6 +13,7 @@ export class KidsCameraHelper {
     this.lookAhead = lookAhead;
     this.scrollX = 0;
     this.holdTimer = 0; // Detik jika di-pan manual
+    this.isDragging = false;
   }
 
   get maxScroll() {
@@ -24,9 +25,21 @@ export class KidsCameraHelper {
     this.scrollX = clamp(this.scrollX, 0, this.maxScroll);
   }
 
+  setDragging(isDragging) {
+    this.isDragging = Boolean(isDragging);
+    if (this.isDragging) {
+      this.holdTimer = 2.5; // Tahan auto-follow selama sedang di-drag
+    }
+  }
+
   panBy(dx) {
     this.scrollX = clamp(this.scrollX + dx, 0, this.maxScroll);
-    this.holdTimer = 2.0; // Tahan 2 detik sebelum auto-follow kembali
+    this.holdTimer = 2.5; // Tahan 2.5 detik sebelum auto-follow kembali
+  }
+
+  panTo(targetX) {
+    this.scrollX = clamp(targetX, 0, this.maxScroll);
+    this.holdTimer = 2.5;
   }
 
   computeFocusX(combatManager) {
@@ -38,9 +51,15 @@ export class KidsCameraHelper {
     const frontE = e.length ? Math.min(...e.map(u => u.x)) : null;
     const home = combatManager.playerCastle ? combatManager.playerCastle.x : 56;
 
-    // 1. Ada benturan: pusatkan di tengah garis depan pemain dan musuh
+    // 1. Jika ada unit di kedua belah pihak:
     if (frontP !== null && frontE !== null) {
-      return (frontP + frontE) / 2;
+      const distance = frontE - frontP;
+      // Jika kedua garis depan berdekatan (dalam jarak benturan <= 70% layar):
+      if (distance <= this.canvasWidth * 0.7 && distance >= -100) {
+        return (frontP + frontE) / 2;
+      }
+      // Jika masih saling berjauhan, fokus ke garis depan pasukan kita yang bergerak maju
+      return frontP + this.canvasWidth * this.lookAhead;
     }
     // 2. Hanya ada pasukan kita: lihat ke depan
     if (frontP !== null) {
@@ -55,24 +74,30 @@ export class KidsCameraHelper {
   }
 
   update(dt, combatManagerOrUnits) {
+    if (this.isDragging) {
+      this.holdTimer = 2.5;
+      return Math.round(this.scrollX);
+    }
+
     if (this.holdTimer > 0) {
       this.holdTimer -= dt;
-    } else {
-      let focusX = 0;
-      if (combatManagerOrUnits && combatManagerOrUnits.playerUnits) {
-        focusX = this.computeFocusX(combatManagerOrUnits);
-      } else if (Array.isArray(combatManagerOrUnits)) {
-        // Fallback jika hanya dilempar array playerUnits
-        const alive = combatManagerOrUnits.filter(u => u.isAlive);
-        focusX = alive.length > 0 ? Math.max(...alive.map(u => u.x)) : 56;
-      } else {
-        focusX = 56;
-      }
-
-      const targetScroll = clamp(focusX - (this.canvasWidth / 2), 0, this.maxScroll);
-      const k = 1 - Math.exp(-this.smoothing * dt);
-      this.scrollX += (targetScroll - this.scrollX) * k;
+      return Math.round(this.scrollX);
     }
+
+    let focusX = 0;
+    if (combatManagerOrUnits && combatManagerOrUnits.playerUnits) {
+      focusX = this.computeFocusX(combatManagerOrUnits);
+    } else if (Array.isArray(combatManagerOrUnits)) {
+      // Fallback jika hanya dilempar array playerUnits
+      const alive = combatManagerOrUnits.filter(u => u.isAlive);
+      focusX = alive.length > 0 ? Math.max(...alive.map(u => u.x)) : 56;
+    } else {
+      focusX = 56;
+    }
+
+    const targetScroll = clamp(focusX - (this.canvasWidth / 2), 0, this.maxScroll);
+    const k = 1 - Math.exp(-this.smoothing * dt);
+    this.scrollX += (targetScroll - this.scrollX) * k;
 
     return Math.round(this.scrollX);
   }

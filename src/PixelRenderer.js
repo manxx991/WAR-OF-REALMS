@@ -242,10 +242,7 @@ export class PixelRenderer {
     if (castleImg) {
       // Benteng 96x112 px ditaruh di atas ground line (y)
       ctx.drawImage(castleImg, x - 48, y - 112, 96, 112);
-      return;
-    }
-
-    if (isPlayer) {
+    } else if (isPlayer) {
       // --- BENTENG CYBER PEMAIN (Tinggi maks 108px, batas atas y - 108 = 36px) ---
       // Menara utama
       ctx.fillStyle = '#0f172a';
@@ -307,6 +304,32 @@ export class PixelRenderer {
       ctx.beginPath();
       ctx.arc(x, y - 106, 4, 0, Math.PI * 2);
       ctx.fill();
+    }
+
+    // Indikator Suar Pertahanan Aktif & Kilau Laser Menara Benteng
+    const hasTarget = castle.target && castle.target.isAlive;
+    const turretX = isPlayer ? x + 20 : x - 20;
+    const turretY = y - 65;
+
+    if (hasTarget) {
+      ctx.save();
+      const glowColor = isPlayer ? '#00f2fe' : '#ff4757';
+      const isFiring = castle.attackTimer > castle.attackCooldown - 0.22;
+
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = isFiring ? 12 : 6;
+      ctx.fillStyle = glowColor;
+      ctx.beginPath();
+      ctx.arc(turretX, turretY, isFiring ? 5.5 : 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (isFiring) {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(turretX, turretY, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     }
   }
 
@@ -684,6 +707,26 @@ export class PixelRenderer {
         ctx.fill();
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(sx - 1, sy - 1, 2, 2);
+      } else if (p.type === 'laser_cyan') {
+        // Proyektil Laser Benteng Pemain (Cyan neon glow)
+        ctx.save();
+        ctx.shadowColor = '#00f2fe';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = '#00f2fe';
+        ctx.fillRect(sx - 6, sy - 2, 12, 4);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(sx - 3, sy - 1, 6, 2);
+        ctx.restore();
+      } else if (p.type === 'laser_red') {
+        // Proyektil Laser Benteng Musuh (Crimson neon glow)
+        ctx.save();
+        ctx.shadowColor = '#ff4757';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = '#ff4757';
+        ctx.fillRect(sx - 6, sy - 2, 12, 4);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(sx - 3, sy - 1, 6, 2);
+        ctx.restore();
       }
     }
   }

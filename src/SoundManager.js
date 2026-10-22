@@ -142,6 +142,21 @@ export class SoundManager {
         break;
       }
 
+      case 'base_laser': { // Laser pertahanan benteng (retro sci-fi zap)
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(700, t);
+        osc.frequency.exponentialRampToValueAtTime(120, t + 0.15);
+        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+        osc.connect(gain);
+        gain.connect(this.sfxGain);
+        osc.start(t);
+        osc.stop(t + 0.15);
+        break;
+      }
+
       case 'star_coin': { // Koin bintang ting-ting!
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();

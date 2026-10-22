@@ -156,29 +156,39 @@ export class Projectile {
     this.x = config.x;
     this.y = config.y;
     this.targetX = config.targetX;
+    this.targetY = config.targetY !== undefined ? config.targetY : config.y;
     this.targetEntity = config.targetEntity;
     this.speed = config.speed || 180;
     this.damage = config.damage;
     this.team = config.team;
-    this.type = config.type; // 'bubble' | 'star'
+    this.type = config.type; // 'bubble' | 'star' | 'laser_cyan' | 'laser_red'
     this.isDead = false;
     this.direction = config.team === 'player' ? 1 : -1;
   }
 
   update(dt) {
     this.x += this.direction * this.speed * dt;
+    // Lerp ketinggian target Y jika proyektil menembak ke bawah/atas dari menara
+    if (this.targetEntity && !this.targetEntity.isDead) {
+      const targetY = this.targetEntity.y - (this.targetEntity.isBuilding ? 40 : 12);
+      this.y += (targetY - this.y) * Math.min(1, 6 * dt);
+    }
     // Cek tabrakan target
     if (this.targetEntity && !this.targetEntity.isDead) {
       const dist = Math.abs(this.targetEntity.x - this.x);
-      if (dist < 12) {
+      if (dist < 14) {
         this.targetEntity.takeDamage(this.damage);
         this.isDead = true;
       }
     } else {
-      // Jika target musnah, jalan sampai batas
-      if (Math.abs(this.x - this.targetX) < 10) {
+      // Jika target musnah, jalan sampai batas target
+      if ((this.x - this.targetX) * this.direction >= 0) {
         this.isDead = true;
       }
+    }
+    // Batas aman lintasan
+    if (this.x < -100 || this.x > 5000) {
+      this.isDead = true;
     }
   }
 }
@@ -310,9 +320,10 @@ export class LaneEntity {
 }
 
 export class LaneCombatManager {
-  constructor(trackLength = LANE_CONFIG.DEFAULT_TRACK_LENGTH, onSfxCallback = null) {
+  constructor(trackLength = LANE_CONFIG.DEFAULT_TRACK_LENGTH, onSfxCallback = null, level = 1) {
     this.trackLength = trackLength;
     this.onSfxCallback = onSfxCallback;
+    this.level = level;
     this.playerUnits = [];
     this.enemyUnits = [];
     this.projectiles = [];
@@ -327,6 +338,7 @@ export class LaneCombatManager {
   }
 
   initCastles() {
+    const baseDamage = 18 + Math.min(10, this.level || 1) * 2;
     this.playerCastle = new LaneEntity({
       id: 'castle_player',
       key: 'castle_player',
@@ -334,11 +346,13 @@ export class LaneCombatManager {
       team: 'player',
       x: LANE_CONFIG.BOUNDS_MIN_X,
       hp: 1000,
-      damage: 0,
+      damage: baseDamage,
       speed: 0,
-      attackRange: 0,
-      attackCooldown: 999,
+      attackRange: 155,
+      attackCooldown: 1.6,
       size: 96,
+      attackType: 'projectile_laser',
+      sfx: 'base_laser',
       isBuilding: true
     });
 
@@ -349,11 +363,13 @@ export class LaneCombatManager {
       team: 'enemy',
       x: this.trackLength - LANE_CONFIG.BOUNDS_MIN_X,
       hp: 1000,
-      damage: 0,
+      damage: baseDamage,
       speed: 0,
-      attackRange: 0,
-      attackCooldown: 999,
+      attackRange: 155,
+      attackCooldown: 1.6,
       size: 96,
+      attackType: 'projectile_laser',
+      sfx: 'base_laser',
       isBuilding: true
     });
   }
@@ -385,10 +401,6 @@ export class LaneCombatManager {
   }
 
   update(dt) {
-    // 1. Update status Kastel
-    this.playerCastle.update(dt);
-    this.enemyCastle.update(dt);
-
     const handleAttack = (attacker, target) => {
       if (this.onSfxCallback && attacker.sfx) {
         this.onSfxCallback(attacker.sfx);
@@ -416,6 +428,23 @@ export class LaneCombatManager {
           type: 'star',
           speed: 230
         }));
+      } else if (attacker.attackType === 'projectile_laser') {
+        // Serangan Meriam / Laser Menara Pertahanan Benteng
+        const isPlayer = attacker.team === 'player';
+        const spawnX = attacker.x + (attacker.direction * (attacker.isBuilding ? 24 : 14));
+        const spawnY = attacker.isBuilding ? attacker.y - 65 : attacker.y - 14;
+        this.projectiles.push(new Projectile({
+          x: spawnX,
+          y: spawnY,
+          targetX: target.x,
+          targetY: target.y - (target.isBuilding ? 40 : 12),
+          targetEntity: target,
+          damage: attacker.damage,
+          team: attacker.team,
+          type: isPlayer ? 'laser_cyan' : 'laser_red',
+          speed: 280
+        }));
+        this.spawnVfx(isPlayer ? 'sparks_cyan' : 'sparks_red', spawnX, spawnY);
       } else if (attacker.attackType === 'ground_slam') {
         // Efek AoE kecil di sekitar target
         this.spawnVfx('slam', target.x, LANE_CONFIG.GROUND_Y_BASE + 8);
@@ -427,6 +456,16 @@ export class LaneCombatManager {
         });
       }
     };
+
+    // 1. Evaluasi target & update status Kastel Pertahanan
+    if (this.playerCastle.isAlive) {
+      this.evaluateTarget(this.playerCastle, this.enemyUnits, null);
+      this.playerCastle.update(dt, handleAttack);
+    }
+    if (this.enemyCastle.isAlive) {
+      this.evaluateTarget(this.enemyCastle, this.playerUnits, null);
+      this.enemyCastle.update(dt, handleAttack);
+    }
 
     // 2. Evaluasi target & update player units
     for (const unit of this.playerUnits) {
@@ -446,7 +485,15 @@ export class LaneCombatManager {
     for (const p of this.projectiles) {
       p.update(dt);
       if (p.isDead) {
-        this.spawnVfx(p.type === 'bubble' ? 'bubble_pop' : 'star_pop', p.x, p.y);
+        if (p.type === 'bubble') {
+          this.spawnVfx('bubble_pop', p.x, p.y);
+        } else if (p.type === 'star') {
+          this.spawnVfx('star_pop', p.x, p.y);
+        } else if (p.type === 'laser_cyan') {
+          this.spawnVfx('sparks_cyan', p.x, p.y);
+        } else if (p.type === 'laser_red') {
+          this.spawnVfx('sparks_red', p.x, p.y);
+        }
       }
     }
     this.projectiles = this.projectiles.filter(p => !p.isDead);
@@ -562,6 +609,34 @@ export class LaneCombatManager {
           maxLife: 0.25,
           size: 4,
           color: '#D2B48C'
+        });
+      }
+    } else if (type === 'sparks_cyan') {
+      for (let i = 0; i < 5; i++) {
+        this.particles.push({
+          type: 'spark',
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 60,
+          vy: (Math.random() - 0.5) * 60 - 10,
+          life: 0.3,
+          maxLife: 0.3,
+          size: 3,
+          color: '#00f2fe'
+        });
+      }
+    } else if (type === 'sparks_red') {
+      for (let i = 0; i < 5; i++) {
+        this.particles.push({
+          type: 'spark',
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 60,
+          vy: (Math.random() - 0.5) * 60 - 10,
+          life: 0.3,
+          maxLife: 0.3,
+          size: 3,
+          color: '#ff4757'
         });
       }
     }
