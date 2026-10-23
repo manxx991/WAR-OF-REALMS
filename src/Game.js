@@ -373,6 +373,11 @@ export class Game {
 
     const modal = document.getElementById('quizModal');
     const isCorrect = choiceIndex === this.activeQuiz.correctIndex;
+    const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+    if (buttons && buttons[choiceIndex]) {
+      buttons[choiceIndex].classList.add(isCorrect ? 'btn-opt-correct' : 'btn-opt-wrong');
+    }
 
     if (isCorrect) {
       this.soundManager.playSfx('quiz_correct');
@@ -391,9 +396,14 @@ export class Game {
         this.renderer.addFloatingText(`+${healAmt} HP BASE TEROBATI! ❤️`, 60, 100, '#2ED573');
       }
 
-      this.closeQuizModal();
+      setTimeout(() => {
+        this.closeQuizModal();
+      }, 250);
     } else {
-      // Penalti Lembut: Efek flash merah ramah anak tanpa reset game
+      // Tampilkan koreksi taktis: sorot jawaban yang benar
+      if (buttons && buttons[this.activeQuiz.correctIndex]) {
+        buttons[this.activeQuiz.correctIndex].classList.add('btn-opt-correct');
+      }
       this.soundManager.playSfx('quiz_wrong');
       const dialog = document.getElementById('quizDialog');
       dialog.classList.add('shake-wrong');
