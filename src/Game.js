@@ -151,6 +151,12 @@ export class Game {
     // Sistem Level Unlock & Stars
     this.loadProgress();
 
+    // Skill Taktis Khusus: Hujan Api (Cooldown 30s) & Regen Hero (Cooldown 25s)
+    this.fireRainCooldown = 30.0;
+    this.fireRainTimer = 0.0;
+    this.heroRegenCooldown = 25.0;
+    this.heroRegenTimer = 0.0;
+
     this.lastFrameTime = performance.now();
     this.initCombat();
     this.initUI();
@@ -218,6 +224,9 @@ export class Game {
     this.mana = 60;
     this.timeScale = 1.0;
     this.isPaused = false;
+    this.fireRainTimer = 0.0;
+    this.heroRegenTimer = 0.0;
+    this.updateSkillCooldownUI();
   }
 
   startLevel(lvl) {
@@ -270,6 +279,15 @@ export class Game {
       }
     }
     this.updateDeckUI();
+
+    // Update Cooldown Skill Taktis (Hujan Api & Regen Hero)
+    if (this.fireRainTimer > 0) {
+      this.fireRainTimer = Math.max(0, this.fireRainTimer - dt);
+    }
+    if (this.heroRegenTimer > 0) {
+      this.heroRegenTimer = Math.max(0, this.heroRegenTimer - dt);
+    }
+    this.updateSkillCooldownUI();
 
     // 3. Spawner Pasukan Musuh
     this.updateEnemySpawner(dt);
@@ -531,6 +549,105 @@ export class Game {
     });
   }
 
+  updateSkillCooldownUI() {
+    // 1. Skill Hujan Api (Kiri)
+    const btnFire = document.getElementById('btnFireRain');
+    const overlayFire = document.getElementById('fireRainCdOverlay');
+    const textFire = document.getElementById('fireRainCdText');
+    if (btnFire && overlayFire && textFire) {
+      if (this.fireRainTimer > 0) {
+        btnFire.classList.add('is-cooldown');
+        const ratio = this.fireRainTimer / this.fireRainCooldown;
+        overlayFire.style.height = `${Math.round(ratio * 100)}%`;
+        textFire.textContent = `${Math.ceil(this.fireRainTimer)}s`;
+      } else {
+        btnFire.classList.remove('is-cooldown');
+        overlayFire.style.height = '0%';
+        textFire.textContent = '';
+      }
+
+      // Deteksi krisis: jika hero kalah/gugur semua saat musuh sedang berkerumun
+      if (this.combatManager) {
+        const livingHeroes = this.combatManager.playerUnits.filter(u => u.isAlive && u.state !== 'DYING');
+        const livingEnemies = this.combatManager.enemyUnits.filter(e => e.isAlive && e.state !== 'DYING');
+        const isCrisis = livingHeroes.length === 0 && livingEnemies.length > 0 && this.fireRainTimer <= 0;
+        btnFire.classList.toggle('hero-crisis', isCrisis);
+      }
+    }
+
+    // 2. Skill Regen Hero (Kanan)
+    const btnRegen = document.getElementById('btnHeroRegen');
+    const overlayRegen = document.getElementById('heroRegenCdOverlay');
+    const textRegen = document.getElementById('heroRegenCdText');
+    if (btnRegen && overlayRegen && textRegen) {
+      if (this.heroRegenTimer > 0) {
+        btnRegen.classList.add('is-cooldown');
+        const ratio = this.heroRegenTimer / this.heroRegenCooldown;
+        overlayRegen.style.height = `${Math.round(ratio * 100)}%`;
+        textRegen.textContent = `${Math.ceil(this.heroRegenTimer)}s`;
+      } else {
+        btnRegen.classList.remove('is-cooldown');
+        overlayRegen.style.height = '0%';
+        textRegen.textContent = '';
+      }
+    }
+  }
+
+  triggerFireRain() {
+    if (this.state !== 'BATTLE') return;
+    const camX = this.camera ? this.camera.scrollX : 0;
+    if (this.fireRainTimer > 0) {
+      this.renderer.addFloatingText(`Hujan Api Cooldown: ${Math.ceil(this.fireRainTimer)}s`, camX + 140, 90, '#FFA502');
+      return;
+    }
+
+    this.fireRainTimer = this.fireRainCooldown;
+    this.soundManager.playSfx('fire_rain');
+    this.renderer.triggerScreenShake(0.7, 5);
+    this.renderer.triggerFireRainVfx(this.combatManager, camX);
+
+    // Hanguskan seluruh musuh di medan tempur
+    let hitCount = 0;
+    for (const enemy of this.combatManager.enemyUnits) {
+      if (!enemy.isAlive || enemy.state === 'DYING') continue;
+      enemy.takeDamage(320);
+      this.renderer.addFloatingText('-320 🔥', enemy.x, enemy.y - 32, '#FF4757');
+      hitCount++;
+    }
+
+    this.renderer.addFloatingText('🔥 HUJAN API DILUNCURKAN! 🔥', camX + 240, 50, '#FF4757');
+    this.updateSkillCooldownUI();
+  }
+
+  triggerHeroRegen() {
+    if (this.state !== 'BATTLE') return;
+    const camX = this.camera ? this.camera.scrollX : 0;
+    if (this.heroRegenTimer > 0) {
+      this.renderer.addFloatingText(`Regen Hero Cooldown: ${Math.ceil(this.heroRegenTimer)}s`, camX + 340, 90, '#FFA502');
+      return;
+    }
+
+    this.heroRegenTimer = this.heroRegenCooldown;
+    this.soundManager.playSfx('hero_regen');
+    this.renderer.triggerHeroRegenVfx(this.combatManager.playerUnits);
+
+    let healedCount = 0;
+    for (const hero of this.combatManager.playerUnits) {
+      if (!hero.isAlive || hero.state === 'DYING') continue;
+      const healAmount = Math.round(hero.maxHp * 0.5) + 60;
+      hero.hp = Math.min(hero.maxHp, hero.hp + healAmount);
+      this.renderer.addFloatingText(`+${healAmount} HP 💚`, hero.x, hero.y - 32, '#10B981');
+      healedCount++;
+    }
+
+    if (healedCount > 0) {
+      this.renderer.addFloatingText(`💚 +REGEN ${healedCount} HERO DIPULIHKAN! 💚`, camX + 240, 50, '#10B981');
+    } else {
+      this.renderer.addFloatingText('💚 REGEN HERO DIAKTIFKAN! 💚', camX + 240, 50, '#10B981');
+    }
+    this.updateSkillCooldownUI();
+  }
+
   showQuizModal(q) {
     const modal = document.getElementById('quizModal');
     const questionText = document.getElementById('quizQuestionText');
@@ -629,6 +746,17 @@ export class Game {
     buttons.forEach((btn, idx) => {
       btn.addEventListener('click', () => this.summonUnit(idx));
     });
+
+    // Tombol Skill Taktis Baru: Hujan Api [F] & Regen Hero [R]
+    const btnFireRain = document.getElementById('btnFireRain');
+    if (btnFireRain) {
+      btnFireRain.addEventListener('click', () => this.triggerFireRain());
+    }
+
+    const btnHeroRegen = document.getElementById('btnHeroRegen');
+    if (btnHeroRegen) {
+      btnHeroRegen.addEventListener('click', () => this.triggerHeroRegen());
+    }
 
     // Tombol Kuis Mana & Heal Base
     document.getElementById('btnManaQuiz').addEventListener('click', () => {
@@ -888,6 +1016,10 @@ export class Game {
         this.openQuiz(QuizType.MANA);
       } else if (e.key === 'e' || e.key === 'E') {
         this.openQuiz(QuizType.FORTIFY);
+      } else if (e.key === 'f' || e.key === 'F') {
+        this.triggerFireRain();
+      } else if (e.key === 'r' || e.key === 'R') {
+        this.triggerHeroRegen();
       } else if (e.key === ' ') {
         this.isPaused = !this.isPaused;
         updatePauseUI();

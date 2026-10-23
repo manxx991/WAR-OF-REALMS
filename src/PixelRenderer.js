@@ -18,6 +18,11 @@ export class PixelRenderer {
 
     this.confettiParticles = [];
     this.floatingTexts = [];
+    this.fireRainMeteors = [];
+    this.regenAuras = [];
+    this.screenShakeTimer = 0;
+    this.screenShakeDuration = 0;
+    this.screenShakeIntensity = 0;
   }
 
   addFloatingText(text, x, y, color = '#FFD700') {
@@ -60,6 +65,22 @@ export class PixelRenderer {
     const trackLength = combatManager.trackLength;
     const level = combatManager.level || 1;
 
+    // Hitung efek guncangan layar (Screen Shake)
+    let shakeX = 0;
+    let shakeY = 0;
+    if (this.screenShakeTimer > 0) {
+      this.screenShakeTimer -= dt;
+      const progress = Math.max(0, this.screenShakeTimer / (this.screenShakeDuration || 0.5));
+      const mag = this.screenShakeIntensity * progress;
+      shakeX = (Math.random() - 0.5) * 2 * mag;
+      shakeY = (Math.random() - 0.5) * 2 * mag;
+    }
+
+    this.ctx.save();
+    if (shakeX !== 0 || shakeY !== 0) {
+      this.ctx.translate(Math.round(shakeX), Math.round(shakeY));
+    }
+
     // 1. Gambar Parallax Background (4 Layers)
     this.drawParallaxBackground(cameraX, trackLength, level);
 
@@ -73,11 +94,17 @@ export class PixelRenderer {
       this.drawEntity(entity, cameraX);
     }
 
+    // Gambar Efek Aura Regen Hero di bawah proyektil
+    this.updateAndDrawRegenAuras(cameraX, dt);
+
     // 4. Gambar Proyektil
     this.drawProjectiles(combatManager.projectiles, cameraX);
 
     // 5. Gambar Partikel VFX (Poof, Spark, Dust)
     this.drawParticles(combatManager.particles, cameraX);
+
+    // Gambar Efek Hujan Api (Meteors & Impact Explosions)
+    this.updateAndDrawFireRain(cameraX, dt);
 
     // 6. Gambar Floating Damage Texts
     this.updateAndDrawFloatingTexts(cameraX, dt);
@@ -86,6 +113,9 @@ export class PixelRenderer {
     if (hudState.isVictory) {
       this.updateAndDrawConfetti(dt);
     }
+
+    // Kembalikan konteks dari guncangan layar sebelum menggambar Top HUD
+    this.ctx.restore();
 
     // 8. Gambar Top HUD (Status HP, Minimap Radar, 1x/2x, Pause)
     this.drawTopHud(combatManager, cameraX, hudState, dt);
@@ -847,6 +877,178 @@ export class PixelRenderer {
       if (c.y > 220) {
         c.y = -10;
         c.x = Math.random() * 480;
+      }
+    }
+  }
+
+  triggerScreenShake(duration = 0.5, intensity = 4.5) {
+    this.screenShakeDuration = duration;
+    this.screenShakeTimer = duration;
+    this.screenShakeIntensity = intensity;
+  }
+
+  triggerFireRainVfx(combatManager, cameraX) {
+    this.fireRainMeteors = [];
+    const minX = Math.max(80, cameraX - 40);
+    const maxX = Math.min(combatManager.trackLength - 60, cameraX + 520);
+    const colors = ['#ff4757', '#ffa502', '#ffd32a', '#ff6b81', '#ff3838'];
+
+    for (let i = 0; i < 32; i++) {
+      const targetX = minX + Math.random() * (maxX - minX);
+      const targetY = 136 + Math.random() * 24;
+      this.fireRainMeteors.push({
+        x: targetX + 45 + Math.random() * 35,
+        y: -15 - Math.random() * 90,
+        targetX,
+        targetY,
+        vx: -95 - Math.random() * 55,
+        vy: 340 + Math.random() * 110,
+        delay: Math.random() * 0.45,
+        radius: 3 + Math.random() * 2.5,
+        state: 'waiting',
+        trail: [],
+        explodeRadius: 0,
+        maxExplodeRadius: 14 + Math.random() * 10,
+        explodeLife: 0.28,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  }
+
+  updateAndDrawFireRain(cameraX, dt) {
+    const ctx = this.ctx;
+    for (let i = this.fireRainMeteors.length - 1; i >= 0; i--) {
+      const m = this.fireRainMeteors[i];
+      if (m.state === 'waiting') {
+        m.delay -= dt;
+        if (m.delay <= 0) m.state = 'falling';
+        continue;
+      }
+
+      if (m.state === 'falling') {
+        m.x += m.vx * dt;
+        m.y += m.vy * dt;
+        m.trail.push({ x: m.x, y: m.y });
+        if (m.trail.length > 5) m.trail.shift();
+
+        // Gambar ekor api meteor
+        for (let tIdx = 0; tIdx < m.trail.length; tIdx++) {
+          const pt = m.trail[tIdx];
+          const tAlpha = (tIdx + 1) / m.trail.length;
+          ctx.save();
+          ctx.globalAlpha = tAlpha * 0.65;
+          ctx.fillStyle = m.color;
+          ctx.fillRect(Math.round(pt.x - cameraX - m.radius * 0.6), Math.round(pt.y - m.radius * 0.6), m.radius * 1.2, m.radius * 1.2);
+          ctx.restore();
+        }
+
+        // Gambar kepala meteor
+        const sx = Math.round(m.x - cameraX);
+        const sy = Math.round(m.y);
+        ctx.save();
+        ctx.fillStyle = m.color;
+        ctx.fillRect(sx - m.radius, sy - m.radius, m.radius * 2, m.radius * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(sx - m.radius * 0.5, sy - m.radius * 0.5, m.radius, m.radius);
+        ctx.restore();
+
+        if (m.y >= m.targetY) {
+          m.state = 'exploding';
+          m.explodeRadius = 2;
+        }
+      } else if (m.state === 'exploding') {
+        m.explodeRadius += (m.maxExplodeRadius - m.explodeRadius) * 12 * dt;
+        m.explodeLife -= dt;
+        const progress = Math.max(0, m.explodeLife / 0.28);
+        const sx = Math.round(m.targetX - cameraX);
+        const sy = Math.round(m.targetY);
+
+        ctx.save();
+        ctx.globalAlpha = progress;
+        // Cincin gelombang ledakan api
+        ctx.strokeStyle = m.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(sx, sy, m.explodeRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Inti bara kuning
+        ctx.fillStyle = '#ffd200';
+        ctx.beginPath();
+        ctx.arc(sx, sy, m.explodeRadius * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        if (m.explodeLife <= 0) {
+          this.fireRainMeteors.splice(i, 1);
+        }
+      }
+    }
+  }
+
+  triggerHeroRegenVfx(playerUnits) {
+    this.regenAuras = [];
+    for (const hero of playerUnits) {
+      if (!hero.isAlive || hero.state === 'DYING') continue;
+      this.regenAuras.push({
+        x: hero.x,
+        y: hero.y,
+        unit: hero,
+        life: 0.9,
+        maxLife: 0.9,
+        sparkles: Array.from({ length: 8 }, () => ({
+          ox: (Math.random() - 0.5) * 24,
+          oy: (Math.random() - 0.5) * 8,
+          vy: -28 - Math.random() * 20,
+          size: 2 + Math.random() * 2
+        }))
+      });
+    }
+  }
+
+  updateAndDrawRegenAuras(cameraX, dt) {
+    const ctx = this.ctx;
+    for (let i = this.regenAuras.length - 1; i >= 0; i--) {
+      const a = this.regenAuras[i];
+      a.life -= dt;
+      const alpha = Math.max(0, a.life / a.maxLife);
+      const curX = (a.unit && a.unit.isAlive) ? a.unit.x : a.x;
+      const curY = (a.unit && a.unit.isAlive) ? a.unit.y : a.y;
+      const sx = Math.round(curX - cameraX);
+      const sy = Math.round(curY);
+
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.5;
+      // Pilar cahaya hijau zamrud vertikal
+      const pillarGrad = ctx.createLinearGradient(sx, sy - 55, sx, sy + 5);
+      pillarGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
+      pillarGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.45)');
+      pillarGrad.addColorStop(1, 'rgba(52, 211, 153, 0.7)');
+      ctx.fillStyle = pillarGrad;
+      ctx.fillRect(sx - 15, sy - 48, 30, 52);
+
+      // Cincin sihir di tanah
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(sx, sy + 3, 16, 5, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Salib kesehatan (+) mengapung
+      ctx.fillStyle = '#ffffff';
+      for (const sp of a.sparkles) {
+        sp.oy += sp.vy * dt;
+        const spAlpha = Math.max(0, 1 - (-sp.oy / 45));
+        ctx.globalAlpha = alpha * spAlpha;
+        const spX = sx + sp.ox;
+        const spY = sy + sp.oy;
+        ctx.fillRect(spX - 1, spY - 3, 2, 6);
+        ctx.fillRect(spX - 3, spY - 1, 6, 2);
+      }
+      ctx.restore();
+
+      if (a.life <= 0) {
+        this.regenAuras.splice(i, 1);
       }
     }
   }

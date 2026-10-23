@@ -39,15 +39,29 @@
 
     <!-- Bottom Deck Bar (Tinggi Proporsional ~27-28%) -->
     <div id="bottomDeckBar">
-      <!-- Tombol Aksi Kiri: Kuis Mana Instan [Q] -->
-      <button id="btnManaQuiz" class="action-btn mana-quiz-btn" title="Jawab Soal Matematika untuk Tambah Mana Instan! (Tombol Q)">
-        <div class="action-btn-glow"></div>
-        <div class="action-btn-content">
-          <img class="action-btn-icon-img" src="assets/ui/icon_btn_mana_quiz.png" alt="Mana">
-          <span class="btn-main-label">MANA BURST</span>
-          <small class="btn-sub-label">SOAL [Q]</small>
-        </div>
-      </button>
+      <!-- Grup Aksi Taktis Kiri: Hujan Api [F] & Kuis Mana [Q] -->
+      <div class="deck-action-group left-deck-group">
+        <button id="btnFireRain" class="action-btn fire-rain-btn" title="Hujan Api Penolong! Hanguskan Pasukan Lawan saat Terdesak (Tombol F, Cooldown 30s)">
+          <div class="action-btn-glow fire-glow"></div>
+          <div class="action-btn-content">
+            <span class="action-icon">🔥</span>
+            <span class="btn-main-label">HUJAN API</span>
+            <small class="btn-sub-label">DARURAT [F]</small>
+          </div>
+          <div id="fireRainCdOverlay" class="skill-cd-overlay">
+            <span id="fireRainCdText" class="skill-cd-text">30s</span>
+          </div>
+        </button>
+
+        <button id="btnManaQuiz" class="action-btn mana-quiz-btn" title="Jawab Soal Matematika untuk Tambah Mana Instan! (Tombol Q)">
+          <div class="action-btn-glow"></div>
+          <div class="action-btn-content">
+            <img class="action-btn-icon-img" src="assets/ui/icon_btn_mana_quiz.png" alt="Mana">
+            <span class="btn-main-label">MANA BURST</span>
+            <small class="btn-sub-label">SOAL [Q]</small>
+          </div>
+        </button>
+      </div>
 
       <!-- Bagian Tengah: Tabung Energi Mana & 5 Kartu Pasukan -->
       <div class="deck-center">
@@ -136,15 +150,29 @@
         </div>
       </div>
 
-      <!-- Tombol Aksi Kanan: Reparasi Benteng [E] -->
-      <button id="btnHealBase" class="action-btn heal-base-btn" title="Jawab Soal Matematika untuk Perbaiki Benteng! (Tombol E)">
-        <div class="action-btn-glow"></div>
-        <div class="action-btn-content">
-          <img class="action-btn-icon-img" src="assets/ui/icon_btn_heal_base.png" alt="Repair">
-          <span class="btn-main-label">BASE REPAIR</span>
-          <small class="btn-sub-label">BASE [E]</small>
-        </div>
-      </button>
+      <!-- Grup Aksi Taktis Kanan: Regen Hero [R] & Reparasi Benteng [E] -->
+      <div class="deck-action-group right-deck-group">
+        <button id="btnHeroRegen" class="action-btn hero-regen-btn" title="Regen Hero! Pulihkan HP Seluruh Pasukan di Medan Tempur (Tombol R, Cooldown 25s)">
+          <div class="action-btn-glow regen-glow"></div>
+          <div class="action-btn-content">
+            <span class="action-icon">💚</span>
+            <span class="btn-main-label">REGEN HERO</span>
+            <small class="btn-sub-label">PULIH [R]</small>
+          </div>
+          <div id="heroRegenCdOverlay" class="skill-cd-overlay">
+            <span id="heroRegenCdText" class="skill-cd-text">25s</span>
+          </div>
+        </button>
+
+        <button id="btnHealBase" class="action-btn heal-base-btn" title="Jawab Soal Matematika untuk Perbaiki Benteng! (Tombol E)">
+          <div class="action-btn-glow"></div>
+          <div class="action-btn-content">
+            <img class="action-btn-icon-img" src="assets/ui/icon_btn_heal_base.png" alt="Repair">
+            <span class="btn-main-label">BASE REPAIR</span>
+            <small class="btn-sub-label">BASE [E]</small>
+          </div>
+        </button>
+      </div>
     </div>
 
     <!-- ==========================================
@@ -251,6 +279,8 @@
             <div class="cheat-item"><span class="cheat-key">[1] - [5]</span><span class="cheat-label">Panggil Unit Pasukan</span></div>
             <div class="cheat-item"><span class="cheat-key">[Q]</span><span class="cheat-label">Kuis Mana (+Bonus Energi)</span></div>
             <div class="cheat-item"><span class="cheat-key">[E]</span><span class="cheat-label">Kuis Reparasi (+25% HP Benteng)</span></div>
+            <div class="cheat-item"><span class="cheat-key">[F]</span><span class="cheat-label">Hujan Api Penolong (CD 30s)</span></div>
+            <div class="cheat-item"><span class="cheat-key">[R]</span><span class="cheat-label">Regen Hero Pasukan (CD 25s)</span></div>
             <div class="cheat-item"><span class="cheat-key">[SPACE]</span><span class="cheat-label">Jeda / Lanjutkan Game</span></div>
             <div class="cheat-item"><span class="cheat-key">[A][B][C][D]</span><span class="cheat-label">Pilih Opsi Kuis Kilat</span></div>
             <div class="cheat-item"><span class="cheat-key">DRAG / A,D</span><span class="cheat-label">Geser Kamera (Mouse/A,D/Panah)</span></div>

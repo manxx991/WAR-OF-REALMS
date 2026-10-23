@@ -260,6 +260,50 @@ export class SoundManager {
         break;
       }
 
+      case 'fire_rain': { // Hujan api & gemuruh meteor jatuh
+        const osc1 = this.ctx.createOscillator();
+        const gain1 = this.ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(180, t);
+        osc1.frequency.exponentialRampToValueAtTime(32, t + 0.65);
+        gain1.gain.setValueAtTime(0.75, t);
+        gain1.gain.exponentialRampToValueAtTime(0.01, t + 0.65);
+        osc1.connect(gain1);
+        gain1.connect(this.sfxGain);
+        osc1.start(t);
+        osc1.stop(t + 0.65);
+
+        const osc2 = this.ctx.createOscillator();
+        const gain2 = this.ctx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(820, t);
+        osc2.frequency.exponentialRampToValueAtTime(140, t + 0.35);
+        gain2.gain.setValueAtTime(0.4, t);
+        gain2.gain.exponentialRampToValueAtTime(0.01, t + 0.35);
+        osc2.connect(gain2);
+        gain2.connect(this.sfxGain);
+        osc2.start(t);
+        osc2.stop(t + 0.35);
+        break;
+      }
+
+      case 'hero_regen': { // Melodi pemulihan kristal berkilau
+        const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t + idx * 0.05);
+          gain.gain.setValueAtTime(0.32, t + idx * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, t + idx * 0.05 + 0.3);
+          osc.connect(gain);
+          gain.connect(this.sfxGain);
+          osc.start(t + idx * 0.05);
+          osc.stop(t + idx * 0.05 + 0.32);
+        });
+        break;
+      }
+
       case 'victory': { // Jingle kemenangan ceria
         const fanfare = [
           { f: 523.25, d: 0.12 }, // C5
