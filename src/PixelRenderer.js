@@ -1108,13 +1108,13 @@ export class PixelRenderer {
     ctx.fillStyle = 'rgba(0, 242, 254, 0.35)';
     ctx.fillRect(0, 27, w, 1);
 
-    // 1. Status Bar HP Kastel Pemain (Kiri: X: 68, Y: 3, W: 96, H: 22)
+    // 1. Status Bar HP Kastel Pemain (Kiri: X: 76, Y: 4, W: 96, H: 22)
     const playerCastle = combatManager.playerCastle;
     const playerHp = Math.max(0, playerCastle ? playerCastle.hp : 0);
     const playerMaxHp = playerCastle ? playerCastle.maxHp : 1000;
     const pRatio = Math.max(0, Math.min(1, playerHp / playerMaxHp));
-    const pBarX = 68;
-    const pBarY = 3;
+    const pBarX = 76;
+    const pBarY = 4;
     const pFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_player') || this.assetLoader.getImage('hud_hp_bar');
 
     // Slot HP Pemain (Di dalam frame: X: 25..90, Y: 7..14 -> w=66, h=8)
@@ -1159,34 +1159,34 @@ export class PixelRenderer {
       ctx.strokeRect(pSlotX - 1, pSlotY - 1, pSlotW + 2, pSlotH + 2);
     }
 
-    // Label Shield Pemain & Teks Angka HP
+    // Keterangan Base Pemain di atas slot bar (bebas tabrakan logo!)
     ctx.save();
-    ctx.font = 'bold 7px "Orbitron", sans-serif';
+    ctx.font = 'bold 6px "Orbitron", sans-serif';
     ctx.fillStyle = '#00f2fe';
     ctx.textAlign = 'center';
-    ctx.shadowColor = '#00f2fe';
+    ctx.shadowColor = 'rgba(0, 242, 254, 0.8)';
     ctx.shadowBlur = 2;
-    ctx.fillText('KITA', pBarX + 11, pBarY + 14);
+    ctx.fillText('BASE KITA', pSlotX + pSlotW / 2, pBarY - 0.5);
 
     // Teks Angka HP di dalam slot bar
-    ctx.font = 'bold 7.5px "JetBrains Mono", monospace';
+    ctx.font = 'bold 7px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#000000';
-    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2 + 1, pSlotY + 7);
-    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2 - 1, pSlotY + 7);
-    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2, pSlotY + 8);
+    ctx.fillText(`${playerHp} / ${playerMaxHp}`, pSlotX + pSlotW / 2 + 1, pSlotY + 6.5);
+    ctx.fillText(`${playerHp} / ${playerMaxHp}`, pSlotX + pSlotW / 2 - 1, pSlotY + 6.5);
+    ctx.fillText(`${playerHp} / ${playerMaxHp}`, pSlotX + pSlotW / 2, pSlotY + 7.5);
     ctx.fillStyle = pRatio > 0.2 ? '#ffffff' : '#ffd200';
-    ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2, pSlotY + 7);
+    ctx.fillText(`${playerHp} / ${playerMaxHp}`, pSlotX + pSlotW / 2, pSlotY + 6.5);
     ctx.restore();
 
-    // 2. Status Bar HP Kastel Musuh (Kanan: X: 316, Y: 3, W: 96, H: 22)
+    // 2. Status Bar HP Kastel Musuh (Kanan: X: 308, Y: 4, W: 96, H: 22)
     const enemyCastle = combatManager.enemyCastle;
     const enemyHp = Math.max(0, enemyCastle ? enemyCastle.hp : 0);
     const enemyMaxHp = enemyCastle ? enemyCastle.maxHp : 1000;
     const eRatio = Math.max(0, Math.min(1, enemyHp / enemyMaxHp));
-    const eBarX = 316;
-    const eBarY = 3;
+    const eBarX = 308;
+    const eBarY = 4;
     const eFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_enemy') || this.assetLoader.getImage('hud_hp_bar_enemy');
 
     // Slot HP Musuh (Flipped Frame: X: 5..70 -> w=66, h=8, Skull di kanan X: 72..95)
@@ -1223,31 +1223,31 @@ export class PixelRenderer {
       ctx.strokeRect(eSlotX - 1, eSlotY - 1, eSlotW + 2, eSlotH + 2);
     }
 
-    // Label Skull Musuh & Teks Angka HP
+    // Keterangan Base Musuh di atas slot bar (bebas tabrakan logo skull!)
     ctx.save();
-    ctx.font = 'bold 7px "Orbitron", sans-serif';
+    ctx.font = 'bold 6px "Orbitron", sans-serif';
     ctx.fillStyle = '#ff4757';
     ctx.textAlign = 'center';
-    ctx.shadowColor = '#ff4757';
+    ctx.shadowColor = 'rgba(255, 71, 87, 0.8)';
     ctx.shadowBlur = 2;
-    ctx.fillText('MUSUH', eBarX + 84, eBarY + 14);
+    ctx.fillText('BASE MUSUH', eSlotX + eSlotW / 2, eBarY - 0.5);
 
     // Teks Angka HP di dalam slot bar musuh
-    ctx.font = 'bold 7.5px "JetBrains Mono", monospace';
+    ctx.font = 'bold 7px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
     ctx.shadowBlur = 0;
     ctx.fillStyle = '#000000';
-    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2 + 1, eSlotY + 7);
-    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2 - 1, eSlotY + 7);
-    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2, eSlotY + 8);
+    ctx.fillText(`${enemyHp} / ${enemyMaxHp}`, eSlotX + eSlotW / 2 + 1, eSlotY + 6.5);
+    ctx.fillText(`${enemyHp} / ${enemyMaxHp}`, eSlotX + eSlotW / 2 - 1, eSlotY + 6.5);
+    ctx.fillText(`${enemyHp} / ${enemyMaxHp}`, eSlotX + eSlotW / 2, eSlotY + 7.5);
     ctx.fillStyle = '#ffffff';
-    ctx.fillText(`${enemyHp}`, eSlotX + eSlotW / 2, eSlotY + 7);
+    ctx.fillText(`${enemyHp} / ${enemyMaxHp}`, eSlotX + eSlotW / 2, eSlotY + 6.5);
     ctx.restore();
 
     // 3. Tengah: Tactical Combat Arena Title & Minimap Radar
     // A. Tactical Combat Arena Micro-Badge (X: 180..300, Y: 2..10)
     ctx.save();
-    const badgeW = 124;
+    const badgeW = 120;
     const badgeH = 8;
     const badgeX = 240 - badgeW / 2;
     const badgeY = 2;
@@ -1272,10 +1272,10 @@ export class PixelRenderer {
     ctx.fillText('TACTICAL COMBAT ARENA', 240, badgeY + 6.5);
     ctx.restore();
 
-    // B. Minimap Radar (X: 175 -> 305, Y: 11 -> 26)
-    const radarX = 175;
+    // B. Minimap Radar (X: 180 -> 300, Y: 11 -> 26)
+    const radarX = 180;
     const radarY = 11;
-    const radarW = 130;
+    const radarW = 120;
     const radarH = 15;
     const trackL = combatManager.trackLength || 850;
     const radarFrameImg = this.assetLoader.getImage('hud_radar_frame');

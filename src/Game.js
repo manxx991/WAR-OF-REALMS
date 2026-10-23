@@ -776,6 +776,7 @@ export class Game {
         const textSpan = btn.querySelector('.hud-btn-text');
         if (iconSpan) iconSpan.textContent = this.isPaused ? '▶' : '⏸';
         if (textSpan) textSpan.textContent = this.isPaused ? 'LANJUT' : 'JEDA';
+        btn.title = this.isPaused ? 'Lanjutkan Permainan (Spasi)' : 'Jeda Permainan (Spasi)';
       }
       document.getElementById('pauseModal').style.display = this.isPaused ? 'flex' : 'none';
     };
@@ -785,8 +786,11 @@ export class Game {
       if (btn) {
         const isFast = this.timeScale > 1.0;
         btn.classList.toggle('speed-2x', isFast);
+        const iconSpan = btn.querySelector('.hud-btn-icon');
         const textSpan = btn.querySelector('.hud-btn-text');
-        if (textSpan) textSpan.textContent = `${this.timeScale}x`;
+        if (iconSpan) iconSpan.textContent = isFast ? '⚡⚡' : '⚡';
+        if (textSpan) textSpan.textContent = isFast ? '2X CEPAT' : '1X';
+        btn.title = isFast ? 'Kecepatan Cepat (2x) - Klik untuk 1x Normal' : 'Kecepatan Normal (1x) - Klik untuk 2x Cepat';
       }
     };
 

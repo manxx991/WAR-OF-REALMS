@@ -240,6 +240,7 @@ body {
   color: #ffd200;
   border: 1px solid rgba(255, 210, 0, 0.65);
   box-shadow: 0 0 10px rgba(255, 210, 0, 0.25), inset 0 0 6px rgba(255, 210, 0, 0.1);
+  min-width: 42px;
 }
 
 .speed-hud-btn:hover {
@@ -254,17 +255,19 @@ body {
 }
 
 .speed-hud-btn.speed-2x {
-  background: rgba(255, 210, 0, 0.3);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.35) 0%, rgba(225, 29, 72, 0.35) 100%);
   border-color: #ffd200;
-  color: #ffffff;
-  box-shadow: 0 0 18px rgba(255, 210, 0, 0.75), inset 0 0 10px rgba(255, 210, 0, 0.4);
-  animation: cyberPulseSpeed 1s infinite alternate;
+  color: #fffbeb;
+  text-shadow: 0 0 6px rgba(255, 210, 0, 0.8);
+  box-shadow: 0 0 16px rgba(255, 210, 0, 0.8), inset 0 0 8px rgba(255, 158, 11, 0.4);
+  animation: cyberPulseSpeed 0.8s infinite alternate;
 }
 
 .fullscreen-hud-btn {
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.65);
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.25), inset 0 0 6px rgba(56, 189, 248, 0.1);
+  min-width: 52px;
 }
 
 .fullscreen-hud-btn:hover {
@@ -276,14 +279,14 @@ body {
 
 .fullscreen-hud-btn.is-fullscreen {
   background: rgba(16, 185, 129, 0.25);
-  border-color: #10b981;
-  color: #34d399;
-  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
+  border-color: #34d399;
+  color: #a7f3d0;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.7), inset 0 0 8px rgba(16, 185, 129, 0.3);
 }
 
 @keyframes cyberPulseSpeed {
   0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 210, 0, 0.5); }
-  100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 210, 0, 0.9); }
+  100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 210, 0, 0.95), 0 0 10px rgba(239, 68, 68, 0.8); }
 }
 
 @keyframes cyberPulseAmber {
