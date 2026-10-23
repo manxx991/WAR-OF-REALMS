@@ -54,6 +54,48 @@ body {
   border-radius: 12px;
 }
 
+/* ==========================================
+   FULLSCREEN & RESPONSIVE FIT FOR SMARTPHONE
+   ========================================== */
+::backdrop {
+  background-color: #000000;
+}
+
+:fullscreen {
+  background-color: #000000;
+}
+
+#gameWrapper.is-fullscreen,
+#gameWrapper:fullscreen,
+:fullscreen #gameWrapper {
+  width: 100vw !important;
+  height: calc(100vw * 216 / 480) !important;
+  max-height: 100vh !important;
+  max-width: calc(100vh * 480 / 216) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 960px), (max-height: 480px) {
+  body {
+    padding: 0;
+    margin: 0;
+    min-height: 100dvh;
+    height: 100dvh;
+    background: #000000;
+  }
+  #gameWrapper {
+    width: 100vw;
+    height: calc(100vw * 216 / 480);
+    max-height: 100dvh;
+    max-width: calc(100dvh * 480 / 216);
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 /* Efek Scanline & Vignette Retro Arcade */
 .crt-overlay {
   position: absolute;
@@ -217,6 +259,26 @@ body {
   color: #ffffff;
   box-shadow: 0 0 18px rgba(255, 210, 0, 0.75), inset 0 0 10px rgba(255, 210, 0, 0.4);
   animation: cyberPulseSpeed 1s infinite alternate;
+}
+
+.fullscreen-hud-btn {
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25), inset 0 0 6px rgba(56, 189, 248, 0.1);
+}
+
+.fullscreen-hud-btn:hover {
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.6), inset 0 0 8px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1px);
+}
+
+.fullscreen-hud-btn.is-fullscreen {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.5);
 }
 
 @keyframes cyberPulseSpeed {
@@ -1530,6 +1592,32 @@ body {
   color: #64748b;
 }
 
+.menu-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fullscreen-link-btn {
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #00f2fe;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.fullscreen-link-btn:hover {
+  background: rgba(0, 242, 254, 0.25);
+  border-color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.5);
+  transform: translateY(-1px);
+}
+
 .reset-link-btn {
   background: none;
   border: none;
@@ -1542,4 +1630,68 @@ body {
 
 .reset-link-btn:hover {
   color: #ef4444;
+}
+
+/* ==========================================
+   MOBILE PORTRAIT ORIENTATION HINT OVERLAY
+   ========================================== */
+.rotate-hint-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(4, 7, 15, 0.96);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.rotate-hint-card {
+  background: linear-gradient(160deg, rgba(15, 23, 42, 0.98) 0%, rgba(6, 10, 20, 0.99) 100%);
+  border: 2px solid #ffd200;
+  border-radius: 12px;
+  padding: 16px 20px;
+  text-align: center;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 35px rgba(255, 210, 0, 0.35);
+  animation: cyberPopIn 0.2s ease-out;
+}
+
+.rotate-phone-icon {
+  font-size: 28px;
+  animation: phoneRotateAnim 1.6s ease-in-out infinite alternate;
+}
+
+@keyframes phoneRotateAnim {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(45deg) scale(1.1); }
+  100% { transform: rotate(90deg) scale(1.15); }
+}
+
+.rotate-hint-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  font-weight: 900;
+  color: #ffd200;
+  letter-spacing: 1px;
+}
+
+.rotate-hint-desc {
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.rotate-hint-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
 }

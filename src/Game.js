@@ -805,6 +805,110 @@ export class Game {
       updateSpeedUI();
     });
 
+    // ==========================================
+    // SISTEM FULLSCREEN & ADAPTASI LAYAR HP
+    // ==========================================
+    const gameWrapper = document.getElementById('gameWrapper');
+    const btnFullscreen = document.getElementById('btnFullscreen');
+    const btnMenuFullscreen = document.getElementById('btnMenuFullscreen');
+    const btnRotateFullscreen = document.getElementById('btnRotateFullscreen');
+    const btnDismissRotate = document.getElementById('btnDismissRotate');
+    const rotateHintOverlay = document.getElementById('rotateHintOverlay');
+
+    const updateFullscreenUI = () => {
+      const isFs = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement ||
+        (gameWrapper && gameWrapper.classList.contains('is-fullscreen'))
+      );
+
+      if (btnFullscreen) {
+        btnFullscreen.classList.toggle('is-fullscreen', isFs);
+        const icon = btnFullscreen.querySelector('.hud-btn-icon');
+        const text = btnFullscreen.querySelector('.hud-btn-text');
+        if (icon) icon.textContent = isFs ? '✕' : '⛶';
+        if (text) text.textContent = isFs ? 'KELUAR' : 'FULL';
+      }
+      if (btnMenuFullscreen) {
+        btnMenuFullscreen.textContent = isFs ? '✕ Keluar Layar Penuh' : '⛶ Layar Penuh';
+      }
+    };
+
+    const toggleFullscreen = () => {
+      const isFs = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement ||
+        (gameWrapper && gameWrapper.classList.contains('is-fullscreen'))
+      );
+
+      if (!isFs) {
+        if (gameWrapper) gameWrapper.classList.add('is-fullscreen');
+        const target = gameWrapper || document.documentElement;
+        try {
+          if (target.requestFullscreen) {
+            target.requestFullscreen().catch(() => {});
+          } else if (target.webkitRequestFullscreen) {
+            target.webkitRequestFullscreen();
+          } else if (target.mozRequestFullScreen) {
+            target.mozRequestFullScreen();
+          } else if (target.msRequestFullscreen) {
+            target.msRequestFullscreen();
+          }
+        } catch (_) {}
+      } else {
+        if (gameWrapper) gameWrapper.classList.remove('is-fullscreen');
+        try {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        } catch (_) {}
+      }
+      updateFullscreenUI();
+    };
+
+    if (btnFullscreen) btnFullscreen.addEventListener('click', toggleFullscreen);
+    if (btnMenuFullscreen) btnMenuFullscreen.addEventListener('click', toggleFullscreen);
+    if (btnRotateFullscreen) {
+      btnRotateFullscreen.addEventListener('click', () => {
+        toggleFullscreen();
+        if (rotateHintOverlay) rotateHintOverlay.style.display = 'none';
+      });
+    }
+    if (btnDismissRotate) {
+      btnDismissRotate.addEventListener('click', () => {
+        if (rotateHintOverlay) {
+          rotateHintOverlay.style.display = 'none';
+          rotateHintOverlay.dataset.dismissed = 'true';
+        }
+      });
+    }
+
+    const checkOrientation = () => {
+      if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+        if (rotateHintOverlay && !rotateHintOverlay.dataset.dismissed) {
+          rotateHintOverlay.style.display = 'flex';
+        }
+      } else {
+        if (rotateHintOverlay) rotateHintOverlay.style.display = 'none';
+      }
+    };
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
+    checkOrientation();
+
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
     // Tombol Toggle Suara (Mute / Unmute)
     const btnSound = document.getElementById('btnSound');
     const updateSoundUI = () => {

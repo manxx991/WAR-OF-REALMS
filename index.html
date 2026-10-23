@@ -31,6 +31,10 @@
           <span class="hud-btn-icon">⚡</span>
           <span class="hud-btn-text">1x</span>
         </button>
+        <button id="btnFullscreen" class="top-hud-btn fullscreen-hud-btn" title="Layar Penuh (F11 / Fullscreen HP)">
+          <span class="hud-btn-icon">⛶</span>
+          <span class="hud-btn-text">FULL</span>
+        </button>
       </div>
     </div>
 
@@ -44,7 +48,7 @@
         <button id="btnFireRain" class="action-btn fire-rain-btn" title="Hujan Api Penolong! Hanguskan Pasukan Lawan saat Terdesak (Tombol F, Cooldown 30s)">
           <div class="action-btn-glow fire-glow"></div>
           <div class="action-btn-content">
-            <span class="action-icon">🔥</span>
+            <img class="action-btn-icon-img" src="assets/ui/icon_btn_fire_rain.png" alt="Hujan Api">
             <span class="btn-main-label">HUJAN API</span>
             <small class="btn-sub-label">DARURAT [F]</small>
           </div>
@@ -155,7 +159,7 @@
         <button id="btnHeroRegen" class="action-btn hero-regen-btn" title="Regen Hero! Pulihkan HP Seluruh Pasukan di Medan Tempur (Tombol R, Cooldown 25s)">
           <div class="action-btn-glow regen-glow"></div>
           <div class="action-btn-content">
-            <span class="action-icon">💚</span>
+            <img class="action-btn-icon-img" src="assets/ui/icon_btn_hero_regen.png" alt="Regen Hero">
             <span class="btn-main-label">REGEN HERO</span>
             <small class="btn-sub-label">PULIH [R]</small>
           </div>
@@ -334,7 +338,23 @@
 
         <div class="menu-footer">
           <span class="game-version-badge">v4.0 Cyber Edition</span>
-          <button id="btnResetProgress" class="reset-link-btn" title="Reset semua progress dan mulai dari Level 1">↺ Reset Progress</button>
+          <div class="menu-footer-actions">
+            <button id="btnMenuFullscreen" class="fullscreen-link-btn" title="Aktifkan Layar Penuh">⛶ Layar Penuh</button>
+            <button id="btnResetProgress" class="reset-link-btn" title="Reset semua progress dan mulai dari Level 1">↺ Reset Progress</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Rotate Hint Overlay (muncul otomatis di layar HP mode Portrait) -->
+    <div id="rotateHintOverlay" class="rotate-hint-overlay">
+      <div class="rotate-hint-card">
+        <div class="rotate-phone-icon">📱 ➔ 🔄</div>
+        <div class="rotate-hint-title">PUTAR KE MODE LANDSCAPE</div>
+        <div class="rotate-hint-desc">Untuk tampilan arena pertempuran yang utuh dan tombol tidak kepotong, silakan miringkan HP kamu ke posisi mendatar (Landscape) dan aktifkan Layar Penuh.</div>
+        <div class="rotate-hint-btns">
+          <button id="btnRotateFullscreen" class="primary-btn cyber-btn-primary">Aktifkan Layar Penuh ⛶</button>
+          <button id="btnDismissRotate" class="secondary-btn cyber-btn-secondary">Tetap Lanjutkan</button>
         </div>
       </div>
     </div>

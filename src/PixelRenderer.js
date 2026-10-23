@@ -917,6 +917,8 @@ export class PixelRenderer {
 
   updateAndDrawFireRain(cameraX, dt) {
     const ctx = this.ctx;
+    const meteorSheet = this.assetLoader.getImage('vfx_meteor_fire_rain');
+
     for (let i = this.fireRainMeteors.length - 1; i >= 0; i--) {
       const m = this.fireRainMeteors[i];
       if (m.state === 'waiting') {
@@ -942,15 +944,23 @@ export class PixelRenderer {
           ctx.restore();
         }
 
-        // Gambar kepala meteor
+        // Gambar sprite meteor (jika sheet tersedia gunakan frame 0..2)
         const sx = Math.round(m.x - cameraX);
         const sy = Math.round(m.y);
-        ctx.save();
-        ctx.fillStyle = m.color;
-        ctx.fillRect(sx - m.radius, sy - m.radius, m.radius * 2, m.radius * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(sx - m.radius * 0.5, sy - m.radius * 0.5, m.radius, m.radius);
-        ctx.restore();
+
+        if (meteorSheet) {
+          const frameIdx = Math.min(2, Math.floor(((m.y + 100) / 250) * 3));
+          ctx.save();
+          ctx.drawImage(meteorSheet, frameIdx * 32, 0, 32, 32, sx - 16, sy - 16, 32, 32);
+          ctx.restore();
+        } else {
+          ctx.save();
+          ctx.fillStyle = m.color;
+          ctx.fillRect(sx - m.radius, sy - m.radius, m.radius * 2, m.radius * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(sx - m.radius * 0.5, sy - m.radius * 0.5, m.radius, m.radius);
+          ctx.restore();
+        }
 
         if (m.y >= m.targetY) {
           m.state = 'exploding';
@@ -963,21 +973,31 @@ export class PixelRenderer {
         const sx = Math.round(m.targetX - cameraX);
         const sy = Math.round(m.targetY);
 
-        ctx.save();
-        ctx.globalAlpha = progress;
-        // Cincin gelombang ledakan api
-        ctx.strokeStyle = m.color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(sx, sy, m.explodeRadius, 0, Math.PI * 2);
-        ctx.stroke();
+        if (meteorSheet) {
+          // Frame ledakan: index 3, 4, 5
+          const frameOffset = 1.0 - progress; // 0.0 -> 1.0
+          const expFrameIdx = 3 + Math.min(2, Math.floor(frameOffset * 3));
+          ctx.save();
+          ctx.globalAlpha = progress;
+          ctx.drawImage(meteorSheet, expFrameIdx * 32, 0, 32, 32, sx - 16, sy - 20, 32, 32);
+          ctx.restore();
+        } else {
+          ctx.save();
+          ctx.globalAlpha = progress;
+          // Cincin gelombang ledakan api
+          ctx.strokeStyle = m.color;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(sx, sy, m.explodeRadius, 0, Math.PI * 2);
+          ctx.stroke();
 
-        // Inti bara kuning
-        ctx.fillStyle = '#ffd200';
-        ctx.beginPath();
-        ctx.arc(sx, sy, m.explodeRadius * 0.5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+          // Inti bara kuning
+          ctx.fillStyle = '#ffd200';
+          ctx.beginPath();
+          ctx.arc(sx, sy, m.explodeRadius * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
 
         if (m.explodeLife <= 0) {
           this.fireRainMeteors.splice(i, 1);
@@ -994,8 +1014,8 @@ export class PixelRenderer {
         x: hero.x,
         y: hero.y,
         unit: hero,
-        life: 0.9,
-        maxLife: 0.9,
+        life: 1.0,
+        maxLife: 1.0,
         sparkles: Array.from({ length: 8 }, () => ({
           ox: (Math.random() - 0.5) * 24,
           oy: (Math.random() - 0.5) * 8,
@@ -1008,33 +1028,46 @@ export class PixelRenderer {
 
   updateAndDrawRegenAuras(cameraX, dt) {
     const ctx = this.ctx;
+    const auraSheet = this.assetLoader.getImage('vfx_hero_regen_aura');
+
     for (let i = this.regenAuras.length - 1; i >= 0; i--) {
       const a = this.regenAuras[i];
       a.life -= dt;
       const alpha = Math.max(0, a.life / a.maxLife);
+      const progress = 1.0 - alpha; // 0.0 -> 1.0
       const curX = (a.unit && a.unit.isAlive) ? a.unit.x : a.x;
       const curY = (a.unit && a.unit.isAlive) ? a.unit.y : a.y;
       const sx = Math.round(curX - cameraX);
       const sy = Math.round(curY);
 
-      ctx.save();
-      ctx.globalAlpha = alpha * 0.5;
-      // Pilar cahaya hijau zamrud vertikal
-      const pillarGrad = ctx.createLinearGradient(sx, sy - 55, sx, sy + 5);
-      pillarGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
-      pillarGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.45)');
-      pillarGrad.addColorStop(1, 'rgba(52, 211, 153, 0.7)');
-      ctx.fillStyle = pillarGrad;
-      ctx.fillRect(sx - 15, sy - 48, 30, 52);
+      if (auraSheet) {
+        const frameIdx = Math.min(5, Math.floor(progress * 6));
+        ctx.save();
+        ctx.globalAlpha = Math.min(1.0, alpha * 1.3);
+        ctx.drawImage(auraSheet, frameIdx * 32, 0, 32, 48, sx - 16, sy - 44, 32, 48);
+        ctx.restore();
+      } else {
+        ctx.save();
+        ctx.globalAlpha = alpha * 0.5;
+        // Pilar cahaya hijau zamrud vertikal
+        const pillarGrad = ctx.createLinearGradient(sx, sy - 55, sx, sy + 5);
+        pillarGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
+        pillarGrad.addColorStop(0.5, 'rgba(16, 185, 129, 0.45)');
+        pillarGrad.addColorStop(1, 'rgba(52, 211, 153, 0.7)');
+        ctx.fillStyle = pillarGrad;
+        ctx.fillRect(sx - 15, sy - 48, 30, 52);
 
-      // Cincin sihir di tanah
-      ctx.strokeStyle = '#34d399';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.ellipse(sx, sy + 3, 16, 5, 0, 0, Math.PI * 2);
-      ctx.stroke();
+        // Cincin sihir di tanah
+        ctx.strokeStyle = '#34d399';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy + 3, 16, 5, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
 
       // Salib kesehatan (+) mengapung
+      ctx.save();
       ctx.fillStyle = '#ffffff';
       for (const sp of a.sparkles) {
         sp.oy += sp.vy * dt;

@@ -25,7 +25,9 @@ export class SoundManager {
       bubble_shoot: 'assets/audio/sfx/sfx_plasma_shot.wav',
       stomp_thud: 'assets/audio/sfx/sfx_stomp_thud.wav',
       quiz_correct: 'assets/audio/sfx/sfx_quiz_correct.wav',
-      quiz_wrong: 'assets/audio/sfx/sfx_quiz_wrong.wav'
+      quiz_wrong: 'assets/audio/sfx/sfx_quiz_wrong.wav',
+      fire_rain: 'assets/audio/sfx/sfx_fire_rain_explosion.wav',
+      hero_regen: 'assets/audio/sfx/sfx_hero_regen_chime.wav'
     };
 
     this.bgmManifest = {
