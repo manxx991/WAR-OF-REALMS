@@ -16,7 +16,7 @@ export const LEVEL_DATA = [
   {
     level: 1,
     name: 'Cyber Gate',
-    topic: 'Aljabar Linear',
+    topic: 'Hitung Cepat & Sains Alam',
     trackLength: 850,
     spawnInterval: 5.5,
     enemies: ['enemy_slime'],
@@ -25,7 +25,7 @@ export const LEVEL_DATA = [
   {
     level: 2,
     name: 'Quantum Core',
-    topic: 'Eksponen & Akar',
+    topic: 'Perkalian & Tata Surya',
     trackLength: 1050,
     spawnInterval: 4.8,
     enemies: ['enemy_slime', 'enemy_bunny'],
@@ -34,7 +34,7 @@ export const LEVEL_DATA = [
   {
     level: 3,
     name: 'Nexus Nebula',
-    topic: 'Logaritma',
+    topic: 'Pembagian & Geografi Dunia',
     trackLength: 1250,
     spawnInterval: 4.5,
     enemies: ['enemy_slime', 'enemy_pebble'],
@@ -43,7 +43,7 @@ export const LEVEL_DATA = [
   {
     level: 4,
     name: 'Parabola Rift',
-    topic: 'Persamaan Kuadrat',
+    topic: 'Geometri & Penemu Sains',
     trackLength: 1500,
     spawnInterval: 4.2,
     enemies: ['enemy_bunny', 'enemy_pebble'],
@@ -52,7 +52,7 @@ export const LEVEL_DATA = [
   {
     level: 5,
     name: 'Binary Valley',
-    topic: 'Barisan & Deret',
+    topic: 'Pecahan & Dunia Komputer',
     trackLength: 1750,
     spawnInterval: 4.0,
     enemies: ['enemy_slime', 'enemy_pebble'],
@@ -61,7 +61,7 @@ export const LEVEL_DATA = [
   {
     level: 6,
     name: 'Trigon Citadel',
-    topic: 'Trigonometri',
+    topic: 'Akar Kuadrat & Tubuh Manusia',
     trackLength: 2050,
     spawnInterval: 3.8,
     enemies: ['enemy_slime', 'enemy_bunny', 'enemy_pebble'],
@@ -70,7 +70,7 @@ export const LEVEL_DATA = [
   {
     level: 7,
     name: 'Matrix Horizon',
-    topic: 'Matriks & Determinan',
+    topic: 'Pola Bilangan & Hewan Fauna',
     trackLength: 2400,
     spawnInterval: 3.5,
     enemies: ['enemy_bunny', 'enemy_pebble'],
@@ -79,7 +79,7 @@ export const LEVEL_DATA = [
   {
     level: 8,
     name: 'Chrono Portal',
-    topic: 'Kombinatorika',
+    topic: 'Satuan Waktu & Sejarah Nasional',
     trackLength: 2750,
     spawnInterval: 3.2,
     enemies: ['enemy_slime', 'enemy_pebble', 'boss_croc'],
@@ -88,7 +88,7 @@ export const LEVEL_DATA = [
   {
     level: 9,
     name: 'Modulo Bastion',
-    topic: 'Modulo & Vektor',
+    topic: 'Aljabar Ringan & Fakta Sains',
     trackLength: 3150,
     spawnInterval: 3.0,
     enemies: ['enemy_bunny', 'boss_croc'],
@@ -97,7 +97,7 @@ export const LEVEL_DATA = [
   {
     level: 10,
     name: 'Singularity Apex',
-    topic: 'Kalkulus Pengantar',
+    topic: 'Cerdas Cepat & Wawasan Dunia',
     trackLength: 3600,
     spawnInterval: 2.8,
     enemies: ['enemy_slime', 'enemy_bunny', 'enemy_pebble'],
@@ -582,11 +582,11 @@ export class Game {
     const rankBadge = document.getElementById('playerRankBadge');
     const statsText = document.getElementById('playerStatsText');
 
-    let rankTitle = 'Kadet Aljabar (SMA / Maba)';
-    if (totalStars >= 27) rankTitle = 'Grandmaster Singularity Kalkulus';
-    else if (totalStars >= 20) rankTitle = 'Magister Vektor & Determinan';
-    else if (totalStars >= 13) rankTitle = 'Strategis Trigonometri & Deret';
-    else if (totalStars >= 6) rankTitle = 'Perwira Eksponen & Kuadrat';
+    let rankTitle = 'Kadet Cerdas (Level 1)';
+    if (totalStars >= 27) rankTitle = 'Grandmaster Singularity & Wawasan Dunia';
+    else if (totalStars >= 20) rankTitle = 'Komandan Taktis & Wawasan Global';
+    else if (totalStars >= 13) rankTitle = 'Perwira Logika & Sains Nusantara';
+    else if (totalStars >= 6) rankTitle = 'Penjelajah Cerdas & Pengetahuan Alam';
 
     if (rankBadge) rankBadge.textContent = rankTitle;
     if (statsText) {
