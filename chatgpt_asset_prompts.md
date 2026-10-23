@@ -1,4 +1,4 @@
-# Master Prompt Generator Aset (Format Khusus ChatGPT / DALL-E 3)
+ # Master Prompt Generator Aset (Format Khusus ChatGPT / DALL-E 3)
 **Game Title:** War of Realms: Math Combat Arena (SMA/SMK & Mahasiswa Baru Edition)  
 **Target Engine AI:** ChatGPT (GPT-4o / DALL-E 3 Image Generation)  
 **Gaya Visual:** 16-bit Cyber-Arcade Pixel Art, Dark Mode Sci-Fi Fantasy, Neon Cyan (`#00f2fe`), Electric Gold (`#ffd200`), Obsidian Dark Slate, Sharp Pixel Edges, Strictly 2D Side-View Orthographic.

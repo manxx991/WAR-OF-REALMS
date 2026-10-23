@@ -323,6 +323,7 @@ export class Game {
       this.bossSpawned = true;
       this.combatManager.spawnUnit(levelInfo.boss, 'enemy');
       this.renderer.addFloatingText('⚠️ BOSS MUNCUL! ⚠️', this.combatManager.trackLength - 80, 100, '#FF4757');
+      this.soundManager.startBgm('boss');
     }
   }
 
@@ -419,8 +420,7 @@ export class Game {
   // ==========================================
   handleVictory() {
     this.state = 'VICTORY';
-    this.soundManager.stopBgm();
-    this.soundManager.playSfx('victory');
+    this.soundManager.playVictoryJingle();
     this.renderer.triggerVictoryConfetti();
 
     // Hitung perolehan bintang berdasarkan sisa HP kastel
@@ -538,7 +538,7 @@ export class Game {
 
     q.options.forEach((opt, idx) => {
       const btn = document.createElement('button');
-      btn.className = `quiz-opt-btn ${colors[idx % colors.length]}`;
+      btn.className = `quiz-opt-btn ${colors[idx % colors.length]} opt-${keys[idx].toLowerCase()}`;
       btn.innerHTML = `<span class="opt-key-badge">${keys[idx]}</span> <span class="opt-val-text">${opt}</span>`;
       btn.onclick = () => this.submitAnswer(idx);
       optionsContainer.appendChild(btn);
@@ -666,6 +666,37 @@ export class Game {
       this.timeScale = this.timeScale === 1.0 ? 2.0 : 1.0;
       updateSpeedUI();
     });
+
+    // Tombol Toggle Suara (Mute / Unmute)
+    const btnSound = document.getElementById('btnSound');
+    const updateSoundUI = () => {
+      if (btnSound) {
+        btnSound.classList.toggle('is-muted', this.soundManager.muted);
+        const iconSpan = btnSound.querySelector('.hud-btn-icon');
+        const textSpan = btnSound.querySelector('.hud-btn-text');
+        if (iconSpan) iconSpan.textContent = this.soundManager.muted ? '🔇' : '🔊';
+        if (textSpan) textSpan.textContent = this.soundManager.muted ? 'BUNGKAM' : 'SUARA';
+      }
+    };
+    if (btnSound) {
+      btnSound.addEventListener('click', () => {
+        this.soundManager.toggleMute();
+        updateSoundUI();
+      });
+    }
+
+    // Audio Unlock pada interaksi pertama pemain (Browser Autoplay Policy)
+    const unlockAudio = () => {
+      this.soundManager.init();
+      this.soundManager.resume();
+      if (this.state === 'MENU' && !this.soundManager.bgmPlaying) {
+        this.soundManager.startBgm('title');
+      }
+      window.removeEventListener('pointerdown', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+    window.addEventListener('pointerdown', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
 
     // Tombol Menu & Navigasi
     document.getElementById('btnNextLevel').addEventListener('click', () => {

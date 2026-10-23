@@ -58,9 +58,10 @@ export class PixelRenderer {
     this.clear();
 
     const trackLength = combatManager.trackLength;
+    const level = combatManager.level || 1;
 
     // 1. Gambar Parallax Background (4 Layers)
-    this.drawParallaxBackground(cameraX, trackLength);
+    this.drawParallaxBackground(cameraX, trackLength, level);
 
     // 2. Gambar Lintasan & Dekorasi Tanah (Combat Lane)
     this.drawCombatLane(cameraX, trackLength);
@@ -93,13 +94,18 @@ export class PixelRenderer {
   // ==========================================
   // PARALLAX BACKGROUND
   // ==========================================
-  drawParallaxBackground(cameraX, trackLength) {
+  drawParallaxBackground(cameraX, trackLength, level = 1) {
     const ctx = this.ctx;
     const w = 480;
     const h = 216;
 
-    // --- Layer 1: Skybox Cyber Grid & Nebula (Paralaks 0.1x) ---
-    const skyImg = this.assetLoader.getImage('bg_sky');
+    const useSunset = (level >= 6 && level <= 9);
+
+    // --- Layer 1: Skybox (Cyber Grid vs Sunset Hills) (Paralaks 0.1x) ---
+    const skyImg = useSunset 
+      ? (this.assetLoader.getImage('bg_sky_sunset') || this.assetLoader.getImage('bg_sky'))
+      : this.assetLoader.getImage('bg_sky');
+
     if (skyImg) {
       const scrollOffset = (cameraX * 0.1) % skyImg.width;
       for (let sx = -scrollOffset; sx < w; sx += skyImg.width) {
@@ -114,8 +120,11 @@ export class PixelRenderer {
       ctx.fillRect(0, 0, w, 160);
     }
 
-    // --- Layer 2: Far Scenery Cyber City (Paralaks 0.3x) ---
-    const farImg = this.assetLoader.getImage('bg_far');
+    // --- Layer 2: Far Scenery (Cyber City vs Sunset Hills) (Paralaks 0.3x) ---
+    const farImg = useSunset
+      ? (this.assetLoader.getImage('bg_far_hills') || this.assetLoader.getImage('bg_far'))
+      : this.assetLoader.getImage('bg_far');
+
     if (farImg) {
       const scrollOffset = (cameraX * 0.3) % farImg.width;
       for (let fx = -scrollOffset; fx < w; fx += farImg.width) {
@@ -236,12 +245,26 @@ export class PixelRenderer {
   drawCastle(castle, x, y) {
     const ctx = this.ctx;
     const isPlayer = castle.team === 'player';
-    const imgKey = isPlayer ? 'castle_player' : 'castle_enemy';
-    const castleImg = this.assetLoader.getImage(imgKey);
+    const hpRatio = castle.hp / castle.maxHp;
+    const isDamaged = hpRatio <= 0.45;
+
+    const baseKey = isPlayer ? 'castle_player' : 'castle_enemy';
+    const damagedKey = isPlayer ? 'castle_player_damaged' : 'castle_enemy_damaged';
+    const castleImg = (isDamaged && this.assetLoader.getImage(damagedKey))
+      ? this.assetLoader.getImage(damagedKey)
+      : this.assetLoader.getImage(baseKey);
 
     if (castleImg) {
       // Benteng 96x112 px ditaruh di atas ground line (y)
       ctx.drawImage(castleImg, x - 48, y - 112, 96, 112);
+
+      // Partikel asap dan percikan sirkuit saat benteng kritis (< 30% HP)
+      if (hpRatio <= 0.3 && Math.random() < 0.25) {
+        ctx.save();
+        ctx.fillStyle = Math.random() < 0.5 ? '#ff4757' : '#ffd200';
+        ctx.fillRect(x - 20 + Math.random() * 40, y - 90 + Math.random() * 40, 2, 2);
+        ctx.restore();
+      }
     } else if (isPlayer) {
       // --- BENTENG CYBER PEMAIN (Tinggi maks 108px, batas atas y - 108 = 36px) ---
       // Menara utama
@@ -735,6 +758,7 @@ export class PixelRenderer {
     const ctx = this.ctx;
     const poofSheet = this.assetLoader.getImage('vfx_poof');
     const sparksSheet = this.assetLoader.getImage('vfx_sparks');
+    const bubbleSheet = this.assetLoader.getImage('vfx_bubble_pop');
 
     for (const pt of particles) {
       const sx = Math.round(pt.x - cameraX);
@@ -748,6 +772,15 @@ export class PixelRenderer {
         ctx.save();
         ctx.globalAlpha = alpha;
         ctx.drawImage(poofSheet, frameIdx * 32, 0, 32, 32, sx - 16, sy - 16, 32, 32);
+        ctx.restore();
+        continue;
+      }
+
+      if (pt.type === 'bubble' && bubbleSheet) {
+        const frameIdx = Math.min(4, Math.floor(progress * 5));
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(bubbleSheet, frameIdx * 32, 0, 32, 32, sx - 16, sy - 16, 32, 32);
         ctx.restore();
         continue;
       }

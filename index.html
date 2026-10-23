@@ -15,16 +15,25 @@
 
     <!-- Top HUD Action Buttons & Quick Status -->
     <div class="top-hud-strip">
-      <button id="btnPause" class="top-hud-btn pause-hud-btn" title="Jeda Permainan (Spasi)">
-        <span class="hud-btn-icon">⏸</span>
-        <span class="hud-btn-text">JEDA</span>
-        <span class="hud-key-tag">[SPC]</span>
-      </button>
+      <div class="top-hud-group left-group">
+        <button id="btnPause" class="top-hud-btn pause-hud-btn" title="Jeda Permainan (Spasi)">
+          <span class="hud-btn-icon">⏸</span>
+          <span class="hud-btn-text">JEDA</span>
+          <span class="hud-key-tag">[SPC]</span>
+        </button>
 
-      <button id="btnSpeed" class="top-hud-btn speed-hud-btn" title="Ubah Kecepatan Game (1x / 2x)">
-        <span class="hud-btn-icon">⚡</span>
-        <span class="hud-btn-text">1x</span>
-      </button>
+        <button id="btnSound" class="top-hud-btn sound-hud-btn" title="Nyalakan / Matikan Audio (M)">
+          <span class="hud-btn-icon">🔊</span>
+          <span class="hud-btn-text">SUARA</span>
+        </button>
+      </div>
+
+      <div class="top-hud-group right-group">
+        <button id="btnSpeed" class="top-hud-btn speed-hud-btn" title="Ubah Kecepatan Game (1x / 2x)">
+          <span class="hud-btn-icon">⚡</span>
+          <span class="hud-btn-text">1x</span>
+        </button>
+      </div>
     </div>
 
     <!-- Canvas Render Internal Pixel-Perfect -->
@@ -36,7 +45,7 @@
       <button id="btnManaQuiz" class="action-btn mana-quiz-btn" title="Jawab Soal Matematika untuk Tambah Mana Instan! (Tombol Q)">
         <div class="action-btn-glow"></div>
         <div class="action-btn-content">
-          <span class="action-icon">⚡</span>
+          <img class="action-btn-icon-img" src="assets/ui/icon_btn_mana_quiz.png" alt="Mana">
           <span class="btn-main-label">MANA BURST</span>
           <small class="btn-sub-label">SOAL [Q]</small>
         </div>
@@ -62,58 +71,68 @@
 
         <!-- 5 Slot Kartu Panggil Pasukan Cyber-Rune -->
         <div id="deckContainer" class="deck-cards">
-          <!-- Unit 1: Prajurit Kayu (Melee Scout) -->
-          <button class="card-btn card-unit-1" data-index="0" title="Panggil Prajurit Kayu (Tekan 1)">
+          <!-- Unit 1: Prajurit Cyber (Melee Vanguard) -->
+          <button class="card-btn card-unit-1" data-index="0" title="Panggil Prajurit Cyber (Tekan 1)">
             <div class="card-hotkey-badge">1</div>
             <div class="card-cost-wrap">
               <span class="cost-gem">💎</span><span class="card-cost">20</span>
             </div>
-            <span class="card-avatar">⚔️</span>
+            <div class="card-avatar-wrap">
+              <img class="card-avatar-img" src="assets/ui/avatar_hero_swordsman.png" alt="Prajurit">
+            </div>
             <span class="card-name">Prajurit</span>
             <div class="cd-overlay"></div>
           </button>
 
-          <!-- Unit 2: Pemanah Gelembung (Ranged DPS) -->
-          <button class="card-btn card-unit-2" data-index="1" title="Panggil Pemanah Gelembung (Tekan 2)">
+          <!-- Unit 2: Pemanah Plasma (Ranged DPS) -->
+          <button class="card-btn card-unit-2" data-index="1" title="Panggil Pemanah Plasma (Tekan 2)">
             <div class="card-hotkey-badge">2</div>
             <div class="card-cost-wrap">
               <span class="cost-gem">💎</span><span class="card-cost">35</span>
             </div>
-            <span class="card-avatar">🏹</span>
+            <div class="card-avatar-wrap">
+              <img class="card-avatar-img" src="assets/ui/avatar_hero_archer.png" alt="Pemanah">
+            </div>
             <span class="card-name">Pemanah</span>
             <div class="cd-overlay"></div>
           </button>
 
-          <!-- Unit 3: Penyihir Bintang (Arcane AoE) -->
-          <button class="card-btn card-unit-3" data-index="2" title="Panggil Penyihir Bintang (Tekan 3)">
+          <!-- Unit 3: Teknopenyihir Matrix (Arcane AoE) -->
+          <button class="card-btn card-unit-3" data-index="2" title="Panggil Teknopenyihir Matrix (Tekan 3)">
             <div class="card-hotkey-badge">3</div>
             <div class="card-cost-wrap">
               <span class="cost-gem">💎</span><span class="card-cost">50</span>
             </div>
-            <span class="card-avatar">🪄</span>
+            <div class="card-avatar-wrap">
+              <img class="card-avatar-img" src="assets/ui/avatar_hero_mage.png" alt="Penyihir">
+            </div>
             <span class="card-name">Penyihir</span>
             <div class="cd-overlay"></div>
           </button>
 
-          <!-- Unit 4: Ksatria Kuda Poni (Fast Charger) -->
-          <button class="card-btn card-unit-4" data-index="3" title="Panggil Ksatria Kuda Poni (Tekan 4)">
+          <!-- Unit 4: Ksatria Kuda Cyber (Fast Charger) -->
+          <button class="card-btn card-unit-4" data-index="3" title="Panggil Ksatria Kuda Cyber (Tekan 4)">
             <div class="card-hotkey-badge">4</div>
             <div class="card-cost-wrap">
               <span class="cost-gem">💎</span><span class="card-cost">80</span>
             </div>
-            <span class="card-avatar">🦄</span>
-            <span class="card-name">Kuda Poni</span>
+            <div class="card-avatar-wrap">
+              <img class="card-avatar-img" src="assets/ui/avatar_hero_pony.png" alt="Ksatria">
+            </div>
+            <span class="card-name">Ksatria</span>
             <div class="cd-overlay"></div>
           </button>
 
-          <!-- Unit 5: Robot Mainan Golem (Super Heavy Tank) -->
-          <button class="card-btn card-unit-5" data-index="4" title="Panggil Robot Mainan Golem (Tekan 5)">
+          <!-- Unit 5: Robot Titan Golem (Super Heavy Tank) -->
+          <button class="card-btn card-unit-5" data-index="4" title="Panggil Robot Titan Golem (Tekan 5)">
             <div class="card-hotkey-badge">5</div>
             <div class="card-cost-wrap">
               <span class="cost-gem">💎</span><span class="card-cost">150</span>
             </div>
-            <span class="card-avatar">🤖</span>
-            <span class="card-name">Robot</span>
+            <div class="card-avatar-wrap">
+              <img class="card-avatar-img" src="assets/ui/avatar_hero_golem.png" alt="Titan">
+            </div>
+            <span class="card-name">Titan</span>
             <div class="cd-overlay"></div>
           </button>
         </div>
@@ -123,7 +142,7 @@
       <button id="btnHealBase" class="action-btn heal-base-btn" title="Jawab Soal Matematika untuk Perbaiki Benteng! (Tombol E)">
         <div class="action-btn-glow"></div>
         <div class="action-btn-content">
-          <span class="action-icon">❤️</span>
+          <img class="action-btn-icon-img" src="assets/ui/icon_btn_heal_base.png" alt="Repair">
           <span class="btn-main-label">BASE REPAIR</span>
           <small class="btn-sub-label">BASE [E]</small>
         </div>

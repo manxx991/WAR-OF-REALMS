@@ -15,7 +15,25 @@ export class SoundManager {
     this.bgmPlaying = false;
     this.bgmInterval = null;
     this.currentTrack = null;
-    this.audioCache = new Map();
+    this.audioBuffers = new Map();
+    this.bgmAudio = null;
+
+    this.sfxManifest = {
+      laser_swing: 'assets/audio/sfx/sfx_laser_swing.wav',
+      wood_swing: 'assets/audio/sfx/sfx_laser_swing.wav',
+      plasma_shot: 'assets/audio/sfx/sfx_plasma_shot.wav',
+      bubble_shoot: 'assets/audio/sfx/sfx_plasma_shot.wav',
+      stomp_thud: 'assets/audio/sfx/sfx_stomp_thud.wav',
+      quiz_correct: 'assets/audio/sfx/sfx_quiz_correct.wav',
+      quiz_wrong: 'assets/audio/sfx/sfx_quiz_wrong.wav'
+    };
+
+    this.bgmManifest = {
+      title: 'assets/audio/bgm/bgm_title.mp3',
+      battle: 'assets/audio/bgm/bgm_battle_fun.mp3',
+      boss: 'assets/audio/bgm/bgm_boss_playful.mp3',
+      victory: 'assets/audio/bgm/jingle_victory.mp3'
+    };
   }
 
   init() {
@@ -34,10 +52,27 @@ export class SoundManager {
       this.bgmGain.connect(this.masterGain);
 
       this.sfxGain = this.ctx.createGain();
-      this.sfxGain.gain.setValueAtTime(0.6, this.ctx.currentTime);
+      this.sfxGain.gain.setValueAtTime(0.65, this.ctx.currentTime);
       this.sfxGain.connect(this.masterGain);
+
+      this.loadSfxBuffers();
     } catch (e) {
       console.warn('Web Audio not initialized:', e);
+    }
+  }
+
+  async loadSfxBuffers() {
+    if (!this.ctx) return;
+    for (const [key, url] of Object.entries(this.sfxManifest)) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) continue;
+        const arrayBuf = await response.arrayBuffer();
+        const audioBuf = await this.ctx.decodeAudioData(arrayBuf);
+        this.audioBuffers.set(key, audioBuf);
+      } catch (_) {
+        // Fallback procedural will be used
+      }
     }
   }
 
@@ -52,6 +87,9 @@ export class SoundManager {
     if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(this.muted ? 0 : 0.7, this.ctx.currentTime);
     }
+    if (this.bgmAudio) {
+      this.bgmAudio.muted = this.muted;
+    }
     return this.muted;
   }
 
@@ -59,12 +97,27 @@ export class SoundManager {
     if (this.muted) return;
     this.init();
     this.resume();
-    if (!this.ctx) return;
 
+    // 1. Coba putar audio buffer asli jika sudah ter-load
+    const buffer = this.audioBuffers.get(type);
+    if (buffer && this.ctx) {
+      try {
+        const source = this.ctx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(this.sfxGain);
+        source.start(0);
+        return;
+      } catch (_) {
+        // Lanjut ke fallback prosedural
+      }
+    }
+
+    if (!this.ctx) return;
     const t = this.ctx.currentTime;
 
     switch (type) {
-      case 'wood_swing': { // Ayunan pedang kayu (whoosh)
+      case 'laser_swing':
+      case 'wood_swing': { // Ayunan pedang laser/kayu (whoosh)
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
@@ -79,7 +132,8 @@ export class SoundManager {
         break;
       }
 
-      case 'bubble_shoot': { // Plop gelembung
+      case 'plasma_shot':
+      case 'bubble_shoot': { // Plop plasma / gelembung
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
@@ -235,6 +289,22 @@ export class SoundManager {
     }
   }
 
+  playVictoryJingle() {
+    this.stopBgm();
+    if (this.muted) return;
+
+    const victoryUrl = this.bgmManifest.victory;
+    if (victoryUrl) {
+      const audio = new Audio(victoryUrl);
+      audio.volume = this.muted ? 0 : 0.65;
+      audio.play().catch(() => {
+        this.playSfx('victory');
+      });
+    } else {
+      this.playSfx('victory');
+    }
+  }
+
   startBgm(theme = 'battle') {
     this.init();
     this.resume();
@@ -244,17 +314,51 @@ export class SoundManager {
     this.bgmPlaying = true;
     this.currentTrack = theme;
 
-    // Chiptune melodi ceria prosedural loop
+    // 1. Coba putar file audio eksternal jika ada
+    const audioUrl = this.bgmManifest[theme];
+    if (audioUrl) {
+      if (!this.bgmAudio) {
+        this.bgmAudio = new Audio();
+      }
+      this.bgmAudio.src = audioUrl;
+      this.bgmAudio.loop = true;
+      this.bgmAudio.muted = this.muted;
+      this.bgmAudio.volume = this.muted ? 0 : 0.45;
+      const playPromise = this.bgmAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Autoplay policy prevented playback or file unavailable, run procedural fallback
+          this.startProceduralBgm(theme);
+        });
+        return;
+      }
+    }
+
+    // 2. Fallback Prosedural
+    this.startProceduralBgm(theme);
+  }
+
+  startProceduralBgm(theme) {
+    if (this.bgmInterval) {
+      clearInterval(this.bgmInterval);
+      this.bgmInterval = null;
+    }
+
     const melody = theme === 'title' ? [
       261.63, 329.63, 392.00, 523.25, 440.00, 392.00, 329.63, 261.63
+    ] : theme === 'boss' ? [
+      220.00, 246.94, 261.63, 293.66, 329.63, 293.66, 261.63, 246.94
     ] : [
       392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00,
       392.00, 329.63, 349.23, 392.00, 523.25, 392.00, 349.23, 329.63
     ];
 
-    const bassline = theme === 'title' ? [130.81, 164.81, 196.00, 130.81] : [196.00, 174.61, 164.81, 146.83];
+    const bassline = theme === 'title' ? [130.81, 164.81, 196.00, 130.81]
+      : theme === 'boss' ? [110.00, 123.47, 130.81, 146.83]
+      : [196.00, 174.61, 164.81, 146.83];
+
     let step = 0;
-    const stepDuration = 0.22; // ~136 BPM
+    const stepDuration = theme === 'boss' ? 0.18 : 0.22;
 
     this.bgmInterval = setInterval(() => {
       if (this.muted || !this.ctx || this.ctx.state !== 'running') return;
@@ -295,6 +399,12 @@ export class SoundManager {
   stopBgm() {
     this.bgmPlaying = false;
     this.currentTrack = null;
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.pause();
+        this.bgmAudio.currentTime = 0;
+      } catch (_) {}
+    }
     if (this.bgmInterval) {
       clearInterval(this.bgmInterval);
       this.bgmInterval = null;

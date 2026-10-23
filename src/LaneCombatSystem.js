@@ -19,7 +19,7 @@ export const UNIT_TYPES = {
   // --- KANDIDAT PASUKAN PEMAIN ---
   hero_swordsman: {
     key: 'hero_swordsman',
-    name: 'Prajurit Kayu',
+    name: 'Prajurit Cyber',
     cost: 20,
     cooldown: 2.5,
     hp: 130,
@@ -29,11 +29,11 @@ export const UNIT_TYPES = {
     attackCooldown: 1.1,
     size: 32,
     attackType: 'melee',
-    sfx: 'wood_swing'
+    sfx: 'laser_swing'
   },
   hero_archer: {
     key: 'hero_archer',
-    name: 'Pemanah Gelembung',
+    name: 'Pemanah Plasma',
     cost: 35,
     cooldown: 4.0,
     hp: 75,
@@ -43,11 +43,11 @@ export const UNIT_TYPES = {
     attackCooldown: 1.6,
     size: 32,
     attackType: 'projectile_bubble',
-    sfx: 'bubble_shoot'
+    sfx: 'plasma_shot'
   },
   hero_mage: {
     key: 'hero_mage',
-    name: 'Penyihir Bintang',
+    name: 'Teknopenyihir Matrix',
     cost: 50,
     cooldown: 6.0,
     hp: 65,
@@ -61,7 +61,7 @@ export const UNIT_TYPES = {
   },
   hero_pony: {
     key: 'hero_pony',
-    name: 'Ksatria Kuda Poni',
+    name: 'Ksatria Kuda Cyber',
     cost: 80,
     cooldown: 8.5,
     hp: 210,
@@ -71,11 +71,11 @@ export const UNIT_TYPES = {
     attackCooldown: 1.3,
     size: 48,
     attackType: 'melee',
-    sfx: 'wood_swing'
+    sfx: 'laser_swing'
   },
   hero_golem: {
     key: 'hero_golem',
-    name: 'Robot Golem',
+    name: 'Robot Titan Golem',
     cost: 150,
     cooldown: 14.0,
     hp: 520,
@@ -91,7 +91,7 @@ export const UNIT_TYPES = {
   // --- KANDIDAT MONSTER MUSUH ---
   enemy_slime: {
     key: 'enemy_slime',
-    name: 'Jelly Slime',
+    name: 'Void Slime',
     hp: 70,
     damage: 8,
     speed: 38,
@@ -103,7 +103,7 @@ export const UNIT_TYPES = {
   },
   enemy_bunny: {
     key: 'enemy_bunny',
-    name: 'Kelinci Wortel',
+    name: 'Cyber Rogue Beast',
     hp: 95,
     damage: 14,
     speed: 68,
@@ -111,11 +111,11 @@ export const UNIT_TYPES = {
     attackCooldown: 1.1,
     size: 32,
     attackType: 'melee',
-    sfx: 'wood_swing'
+    sfx: 'laser_swing'
   },
   enemy_pebble: {
     key: 'enemy_pebble',
-    name: 'Batuan Cilik',
+    name: 'Armored Stone Drone',
     hp: 200,
     damage: 12,
     speed: 26,
@@ -127,7 +127,7 @@ export const UNIT_TYPES = {
   },
   boss_croc: {
     key: 'boss_croc',
-    name: 'Buaya Gendut (Mini Boss)',
+    name: 'Heavy Cyber Croc (Mini Boss)',
     hp: 500,
     damage: 36,
     speed: 24,
@@ -139,7 +139,7 @@ export const UNIT_TYPES = {
   },
   boss_dragon: {
     key: 'boss_dragon',
-    name: 'Raja Boneka Naga (Boss)',
+    name: 'Singularity Dragon King (Boss)',
     hp: 1300,
     damage: 52,
     speed: 18,
