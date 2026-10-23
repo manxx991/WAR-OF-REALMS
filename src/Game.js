@@ -736,6 +736,38 @@ export class Game {
       this.startLevel(this.currentLevel);
     });
 
+    const btnDefeatMenu = document.getElementById('btnDefeatMenu');
+    if (btnDefeatMenu) {
+      btnDefeatMenu.addEventListener('click', () => {
+        this.state = 'MENU';
+        document.getElementById('defeatModal').style.display = 'none';
+        document.getElementById('menuModal').style.display = 'flex';
+        this.renderLevelMenu();
+        this.soundManager.startBgm('title');
+      });
+    }
+
+    const btnPauseRestart = document.getElementById('btnPauseRestart');
+    if (btnPauseRestart) {
+      btnPauseRestart.addEventListener('click', () => {
+        this.isPaused = false;
+        document.getElementById('pauseModal').style.display = 'none';
+        this.startLevel(this.currentLevel);
+      });
+    }
+
+    const btnPauseMenu = document.getElementById('btnPauseMenu');
+    if (btnPauseMenu) {
+      btnPauseMenu.addEventListener('click', () => {
+        this.isPaused = false;
+        this.state = 'MENU';
+        document.getElementById('pauseModal').style.display = 'none';
+        document.getElementById('menuModal').style.display = 'flex';
+        this.renderLevelMenu();
+        this.soundManager.startBgm('title');
+      });
+    }
+
     const btnReset = document.getElementById('btnResetProgress');
     if (btnReset) {
       btnReset.addEventListener('click', () => {

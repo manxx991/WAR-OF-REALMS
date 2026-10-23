@@ -19,16 +19,14 @@
         <button id="btnPause" class="top-hud-btn pause-hud-btn" title="Jeda Permainan (Spasi)">
           <span class="hud-btn-icon">⏸</span>
           <span class="hud-btn-text">JEDA</span>
-          <span class="hud-key-tag">[SPC]</span>
-        </button>
-
-        <button id="btnSound" class="top-hud-btn sound-hud-btn" title="Nyalakan / Matikan Audio (M)">
-          <span class="hud-btn-icon">🔊</span>
-          <span class="hud-btn-text">SUARA</span>
         </button>
       </div>
 
       <div class="top-hud-group right-group">
+        <button id="btnSound" class="top-hud-btn sound-hud-btn" title="Nyalakan / Matikan Audio (M)">
+          <span class="hud-btn-icon">🔊</span>
+          <span class="hud-btn-text">SUARA</span>
+        </button>
         <button id="btnSpeed" class="top-hud-btn speed-hud-btn" title="Ubah Kecepatan Game (1x / 2x)">
           <span class="hud-btn-icon">⚡</span>
           <span class="hud-btn-text">1x</span>
@@ -225,11 +223,12 @@
         <div class="modal-corner-deco bottom-right"></div>
 
         <div class="defeat-header-badge">PERTAHANAN JEBOL</div>
-        <div class="menu-title cyber-defeat-title">😊 AYO COBA LAGI! 😊</div>
-        <p class="modal-desc defeat-desc">Jangan menyerah, kamu pasti bisa! Manfaatkan bonus kuis Mana [Q] untuk memanggil pasukan lebih cepat saat musuh berkerumun.</p>
+        <div class="menu-title cyber-defeat-title">⚡ STRATEGI ULANG ⚡</div>
+        <p class="modal-desc defeat-desc">Benteng kewalahan menahan laju musuh. Susun ulang formasi dan manfaatkan kuis Mana [Q] untuk menambah cadangan energi tempur!</p>
         
         <div class="menu-buttons">
           <button id="btnDefeatRetry" class="primary-btn cyber-btn-primary defeat-retry-btn">Coba Lagi ↺</button>
+          <button id="btnDefeatMenu" class="secondary-btn cyber-btn-secondary">Pilih Level ☷</button>
         </div>
       </div>
     </div>
@@ -250,7 +249,7 @@
           <div class="cheatsheet-title">PANDUAN KONTROL & PINTASAN KEYBOARD:</div>
           <div class="cheatsheet-grid">
             <div class="cheat-item"><span class="cheat-key">[1] - [5]</span><span class="cheat-label">Panggil Unit Pasukan</span></div>
-            <div class="cheat-item"><span class="cheat-key">[Q]</span><span class="cheat-label">Kuis Mana (+50 Mana Instan)</span></div>
+            <div class="cheat-item"><span class="cheat-key">[Q]</span><span class="cheat-label">Kuis Mana (+Bonus Energi)</span></div>
             <div class="cheat-item"><span class="cheat-key">[E]</span><span class="cheat-label">Kuis Reparasi (+25% HP Benteng)</span></div>
             <div class="cheat-item"><span class="cheat-key">[SPACE]</span><span class="cheat-label">Jeda / Lanjutkan Game</span></div>
             <div class="cheat-item"><span class="cheat-key">[A][B][C][D]</span><span class="cheat-label">Pilih Opsi Kuis Kilat</span></div>
@@ -260,6 +259,8 @@
 
         <div class="menu-buttons">
           <button id="btnResume" class="primary-btn cyber-btn-primary">Lanjutkan ▶</button>
+          <button id="btnPauseRestart" class="secondary-btn cyber-btn-secondary">Ulangi ↺</button>
+          <button id="btnPauseMenu" class="secondary-btn cyber-btn-secondary">Pilih Level ☷</button>
         </div>
       </div>
     </div>

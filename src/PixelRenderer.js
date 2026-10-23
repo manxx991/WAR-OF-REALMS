@@ -873,12 +873,12 @@ export class PixelRenderer {
     ctx.fillStyle = 'rgba(0, 242, 254, 0.35)';
     ctx.fillRect(0, 27, w, 1);
 
-    // 1. Status Bar HP Kastel Pemain (Kiri: X: 48, Y: 3, W: 96, H: 22)
+    // 1. Status Bar HP Kastel Pemain (Kiri: X: 68, Y: 3, W: 96, H: 22)
     const playerCastle = combatManager.playerCastle;
     const playerHp = Math.max(0, playerCastle ? playerCastle.hp : 0);
     const playerMaxHp = playerCastle ? playerCastle.maxHp : 1000;
     const pRatio = Math.max(0, Math.min(1, playerHp / playerMaxHp));
-    const pBarX = 48;
+    const pBarX = 68;
     const pBarY = 3;
     const pFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_player') || this.assetLoader.getImage('hud_hp_bar');
 
@@ -930,7 +930,7 @@ export class PixelRenderer {
     ctx.fillStyle = '#00f2fe';
     ctx.textAlign = 'center';
     ctx.shadowColor = '#00f2fe';
-    ctx.shadowBlur = 4;
+    ctx.shadowBlur = 2;
     ctx.fillText('KITA', pBarX + 11, pBarY + 14);
 
     // Teks Angka HP di dalam slot bar
@@ -945,12 +945,12 @@ export class PixelRenderer {
     ctx.fillText(`${playerHp}`, pSlotX + pSlotW / 2, pSlotY + 7);
     ctx.restore();
 
-    // 2. Status Bar HP Kastel Musuh (Kanan: X: 336, Y: 3, W: 96, H: 22)
+    // 2. Status Bar HP Kastel Musuh (Kanan: X: 316, Y: 3, W: 96, H: 22)
     const enemyCastle = combatManager.enemyCastle;
     const enemyHp = Math.max(0, enemyCastle ? enemyCastle.hp : 0);
     const enemyMaxHp = enemyCastle ? enemyCastle.maxHp : 1000;
     const eRatio = Math.max(0, Math.min(1, enemyHp / enemyMaxHp));
-    const eBarX = 336;
+    const eBarX = 316;
     const eBarY = 3;
     const eFrameImg = this.assetLoader.getImage('hud_hp_bar_frame_enemy') || this.assetLoader.getImage('hud_hp_bar_enemy');
 
@@ -994,7 +994,7 @@ export class PixelRenderer {
     ctx.fillStyle = '#ff4757';
     ctx.textAlign = 'center';
     ctx.shadowColor = '#ff4757';
-    ctx.shadowBlur = 4;
+    ctx.shadowBlur = 2;
     ctx.fillText('MUSUH', eBarX + 84, eBarY + 14);
 
     // Teks Angka HP di dalam slot bar musuh
@@ -1010,16 +1010,16 @@ export class PixelRenderer {
     ctx.restore();
 
     // 3. Tengah: Tactical Combat Arena Title & Minimap Radar
-    // A. Tactical Combat Arena Micro-Badge (X: 170..310, Y: 1..9)
+    // A. Tactical Combat Arena Micro-Badge (X: 180..300, Y: 2..10)
     ctx.save();
-    const badgeW = 136;
+    const badgeW = 124;
     const badgeH = 8;
     const badgeX = 240 - badgeW / 2;
-    const badgeY = 1;
+    const badgeY = 2;
 
-    ctx.fillStyle = 'rgba(6, 12, 24, 0.85)';
+    ctx.fillStyle = 'rgba(6, 12, 24, 0.9)';
     ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
-    ctx.strokeStyle = 'rgba(0, 242, 254, 0.35)';
+    ctx.strokeStyle = 'rgba(0, 242, 254, 0.4)';
     ctx.lineWidth = 1;
     ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
 
@@ -1037,11 +1037,11 @@ export class PixelRenderer {
     ctx.fillText('TACTICAL COMBAT ARENA', 240, badgeY + 6.5);
     ctx.restore();
 
-    // B. Minimap Radar (X: 160 -> 320, Y: 10 -> 26)
-    const radarX = 160;
-    const radarY = 10;
-    const radarW = 160;
-    const radarH = 16;
+    // B. Minimap Radar (X: 175 -> 305, Y: 11 -> 26)
+    const radarX = 175;
+    const radarY = 11;
+    const radarW = 130;
+    const radarH = 15;
     const trackL = combatManager.trackLength || 850;
     const radarFrameImg = this.assetLoader.getImage('hud_radar_frame');
 
