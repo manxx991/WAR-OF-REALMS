@@ -200,6 +200,16 @@ Dimensi: Lebar 96 px, **Tinggi maksimal 112 px** (agar tidak menyentuh HUD atas 
 * **Prompt ChatGPT:**
 > Pixel art VFX spritesheet of radiant golden and cyan plasma starburst sparks, 6 frame horizontal sequence. Tiny bright energy particles bursting outward, spinning rapidly, glowing intensely, and shrinking into sparkle dust. 16x16 pixel frame size, 16-bit video game combat hit particle, isolated on solid black background.
 
+### [VFX-03] Hujan Meteor Api & Ledakan Kawah (Fire Rain & Impact - 32x32 px per frame)
+* **Lokasi Simpan:** `assets/sprites/vfx/vfx_meteor_fire_rain.png`
+* **Prompt ChatGPT:**
+> Pixel art VFX spritesheet of a fiery sci-fi meteor strike and impact explosion, 6 frame horizontal sequence. Frame 1-2: diagonal descending flaming meteor rock with blazing red-orange fire trail and white-hot core. Frame 3-4: violent ground impact explosion with expanding fiery shockwave ring and scattered amber embers. Frame 5-6: dissipating flame burst and glowing smoky pixel debris. Exactly 32x32 pixels per frame, 16-bit arcade video game visual effect, isolated on solid pure magenta `#FF00FF` background. Sharp pixel borders, zero blur.
+
+### [VFX-04] Pilar Cahaya Suci & Aura Pemulihan Hero (Regen Aura - 32x48 px per frame)
+* **Lokasi Simpan:** `assets/sprites/vfx/vfx_hero_regen_aura.png`
+* **Prompt ChatGPT:**
+> Pixel art VFX spritesheet of a magical high-tech health regeneration aura, 6 frame horizontal sequence. A vertical column of translucent emerald-green divine light rising upwards from a glowing cybernetic rune circle on the ground, surrounded by floating golden sparkles and rising green healing plus-cross symbols (+). Exactly 32x48 pixels per frame, 16-bit retro arcade game spell effect, isolated on solid pure magenta `#FF00FF` background. Vibrant neon green and cyan glow accents, crisp pixel boundaries.
+
 ---
 
 ## 6. Antarmuka Pengguna (UI & HUD)
@@ -221,6 +231,16 @@ Dimensi: Lebar 96 px, **Tinggi maksimal 112 px** (agar tidak menyentuh HUD atas 
 * **Lokasi Simpan:** `assets/ui/popup_quiz_dialog.png`
 * **Prompt ChatGPT:**
 > Pixel art UI popup dialog box for a tactical math calculation terminal, exactly 260x100 pixels dimensions. Futuristic dark slate terminal frame with glowing cyan corner brackets, top banner labeled 'TACTICAL CALCULATION', dark central blackboard readout screen for displaying math equations, and 4 pill-shaped answer button frames below in 4 distinct high-tech neon colors: Crimson Red (A), Sky Blue (B), Electric Amber (C), and Emerald Green (D). 16-bit retro game interface, clean sharp borders, on solid magenta `#FF00FF` background.
+
+### [UI-04] Ikon Tombol Aksi Hujan Api (Emergency Fire Rain Skill - 40x40 px)
+* **Lokasi Simpan:** `assets/ui/icon_btn_fire_rain.png`
+* **Prompt ChatGPT:**
+> Pixel art game UI icon of an emergency orbital fire rain meteor strike ability, 40x40 pixels square icon. An ornate circular tactical button frame made of dark titanium metal with glowing molten amber-red border rivets. Inside is a flaming meteor rock hurtling downwards with blazing orange and crimson plasma trails, surrounded by fiery solar flare sparks. 16-bit retro arcade interface style, high contrast, vivid fiery red and golden glow, isolated on solid pure magenta `#FF00FF` background.
+
+### [UI-05] Ikon Tombol Aksi Regen Hero (Troop Healing & Regeneration - 40x40 px)
+* **Lokasi Simpan:** `assets/ui/icon_btn_hero_regen.png`
+* **Prompt ChatGPT:**
+> Pixel art game UI icon of a troop healing and regeneration skill, 40x40 pixels square icon. An ornate circular tactical button frame made of dark obsidian metal with glowing emerald-green circuit trims. Inside is a glowing jade-green medical cross and winged heart emblem radiating upward beams of holy light and sparkling digital health motes. 16-bit retro video game UI icon, bright high-contrast green and cyan glow, isolated on solid pure magenta `#FF00FF` background.
 
 ---
 
@@ -244,3 +264,5 @@ Jika ingin membuat musik dan suara sendiri, salin prompt berikut ke **Suno AI** 
 * **Hentakan Golem:** `Heavy mecha robot footstep thud ground slam, low frequency hydraulic impact`
 * **Kuis Benar:** `Magical harmonic chime arpeggio ascending, pleasant high-pitched correct answer reward chime`
 * **Kuis Salah:** `Gentle low frequency cartoon sawtooth buzz error sound, soft failure tone`
+* **Hujan Api & Ledakan:** `Heavy 16-bit arcade meteor fall whistling descent followed by a deep rumbling fire explosion and sizzling flame crackle`
+* **Regen Hero:** `Magical 16-bit ascending crystalline chime arpeggio with shimmering holy light resonance, uplifting health restoration sound`
