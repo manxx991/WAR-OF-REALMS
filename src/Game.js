@@ -111,6 +111,7 @@ export class Game {
     this.assetLoader = new AssetLoader();
     this.soundManager = new SoundManager();
     this.renderer = new PixelRenderer(this.canvas, this.assetLoader);
+    window.game = this;
 
     this.currentLevel = 1;
     this.state = 'MENU'; // 'MENU' | 'BATTLE' | 'VICTORY' | 'DEFEAT'
@@ -226,6 +227,12 @@ export class Game {
     this.isPaused = false;
     this.fireRainTimer = 0.0;
     this.heroRegenTimer = 0.0;
+    this.battleStats = {
+      unitsSpawned: 0,
+      quizzesAnswered: 0,
+      quizzesCorrect: 0,
+      skillsUsed: 0
+    };
     this.updateSkillCooldownUI();
   }
 
@@ -359,6 +366,10 @@ export class Game {
       card.cooldownTimer = unitDef.cooldown;
 
       const spawned = this.combatManager.spawnUnit(card.key, 'player');
+      if (!this.battleStats) {
+        this.battleStats = { unitsSpawned: 0, quizzesAnswered: 0, quizzesCorrect: 0, skillsUsed: 0 };
+      }
+      this.battleStats.unitsSpawned++;
       this.soundManager.playSfx(unitDef.sfx);
       this.renderer.addFloatingText(`-${unitDef.cost}`, spawned.x, spawned.y - 30, '#54A0FF');
       this.updateDeckUI();
@@ -389,8 +400,16 @@ export class Game {
   submitAnswer(choiceIndex) {
     if (!this.activeQuiz) return;
 
+    if (!this.battleStats) {
+      this.battleStats = { unitsSpawned: 0, quizzesAnswered: 0, quizzesCorrect: 0, skillsUsed: 0 };
+    }
+    this.battleStats.quizzesAnswered++;
+
     const modal = document.getElementById('quizModal');
     const isCorrect = choiceIndex === this.activeQuiz.correctIndex;
+    if (isCorrect) {
+      this.battleStats.quizzesCorrect++;
+    }
     const buttons = document.querySelectorAll('.quiz-opt-btn');
 
     if (buttons && buttons[choiceIndex]) {
@@ -471,22 +490,104 @@ export class Game {
     setTimeout(() => {
       const victoryModal = document.getElementById('victoryModal');
       const starRating = document.getElementById('victoryStars');
-      const victoryMsg = document.getElementById('victoryMessage');
       const btnNext = document.getElementById('btnNextLevel');
+      const btnNextText = document.getElementById('btnNextLevelText');
+      const rankLetterEl = document.getElementById('victoryRankLetter');
+      const rankBadgeEl = document.getElementById('victoryRankBadge');
+      const rankDescEl = document.getElementById('victoryRankDesc');
+      const sectorTagEl = document.getElementById('victorySectorTag');
+      const vStatHp = document.getElementById('vStatHp');
+      const vStatHpSub = document.getElementById('vStatHpSub');
+      const vStatQuiz = document.getElementById('vStatQuiz');
+      const vStatQuizSub = document.getElementById('vStatQuizSub');
+      const vStatUnits = document.getElementById('vStatUnits');
+      const vStatTime = document.getElementById('vStatTime');
+      const unlockBanner = document.getElementById('victoryUnlockBanner');
+      const unlockText = document.getElementById('victoryUnlockText');
 
-      starRating.textContent = '⭐'.repeat(stars) + '☆'.repeat(3 - stars);
+      const currentLvlInfo = LEVEL_DATA.find(l => l.level === this.currentLevel) || LEVEL_DATA[0];
+      const nextLvlInfo = LEVEL_DATA.find(l => l.level === this.currentLevel + 1);
 
+      // Rank & Stars
+      let rank = 'S';
+      let rankClass = 'rank-s';
+      let rankDesc = 'TACTICAL SUPREMACY (3 STARS)';
+      if (stars === 2) {
+        rank = 'A';
+        rankClass = 'rank-a';
+        rankDesc = 'SECTOR SECURED (2 STARS)';
+      } else if (stars === 1) {
+        rank = 'B';
+        rankClass = 'rank-b';
+        rankDesc = 'SURVIVOR CLEARED (1 STAR)';
+      }
+
+      if (rankLetterEl) rankLetterEl.textContent = rank;
+      if (rankBadgeEl) {
+        rankBadgeEl.className = `victory-rank-badge ${rankClass}`;
+      }
+      if (rankDescEl) rankDescEl.textContent = rankDesc;
+
+      // Render Cyber Stars
+      if (starRating) {
+        let starsHtml = '';
+        for (let i = 0; i < 3; i++) {
+          const isActive = i < stars;
+          const color = isActive ? '#ffd200' : '#334155';
+          starsHtml += `
+            <span class="cyber-star-icon ${isActive ? 'active' : 'inactive'}">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="${color}">
+                <polygon points="12,1 15,9 23,9 17,14 19,22 12,17 5,22 7,14 1,9 9,9"/>
+              </svg>
+            </span>
+          `;
+        }
+        starRating.innerHTML = starsHtml;
+      }
+
+      // Sector Tag
+      if (sectorTagEl) {
+        sectorTagEl.textContent = `SEKTOR ${this.currentLevel}: ${currentLvlInfo.name.toUpperCase()} • ${currentLvlInfo.topic}`;
+      }
+
+      // Stats
+      const hpPct = Math.round(hpRatio * 100);
+      if (vStatHp) vStatHp.textContent = `${hpPct}%`;
+      if (vStatHpSub) vStatHpSub.textContent = `${Math.max(0, Math.round(castle.hp))} / ${castle.maxHp} HP`;
+
+      const stats = this.battleStats || { unitsSpawned: 0, quizzesAnswered: 0, quizzesCorrect: 0, skillsUsed: 0 };
+      const quizAccuracy = stats.quizzesAnswered > 0 ? Math.round((stats.quizzesCorrect / stats.quizzesAnswered) * 100) : 100;
+      if (vStatQuiz) vStatQuiz.textContent = `${stats.quizzesCorrect} Terjawab`;
+      if (vStatQuizSub) vStatQuizSub.textContent = `${quizAccuracy}% Akurasi`;
+
+      if (vStatUnits) vStatUnits.textContent = `${stats.unitsSpawned} Unit`;
+
+      const mins = Math.floor(this.battleTimer / 60);
+      const secs = Math.floor(this.battleTimer % 60);
+      if (vStatTime) vStatTime.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      // Unlock Banner
       if (this.currentLevel < 10) {
-        btnNext.style.display = 'inline-block';
-        btnNext.textContent = `Level ${this.currentLevel + 1} ➔`;
-        if (victoryMsg) {
-          victoryMsg.innerHTML = `Kastel lawan berhasil kamu taklukkan!<br><span style="color:#2ECC71; font-weight:700;">Level ${this.currentLevel + 1} Terbuka! 🔓</span>`;
+        if (unlockBanner) {
+          unlockBanner.style.display = 'flex';
+          unlockBanner.classList.remove('champion');
         }
+        if (unlockText) {
+          const nName = nextLvlInfo ? nextLvlInfo.name.toUpperCase() : `SEKTOR ${this.currentLevel + 1}`;
+          unlockText.textContent = `SEKTOR ${this.currentLevel + 1} TERBUKA: ${nName}`;
+        }
+        if (btnNextText) btnNextText.textContent = `SEKTOR ${this.currentLevel + 1} ➔`;
+        else if (btnNext) btnNext.textContent = `SEKTOR ${this.currentLevel + 1} ➔`;
       } else {
-        btnNext.style.display = 'none';
-        if (victoryMsg) {
-          victoryMsg.innerHTML = `🏆 <strong>LUAR BIASA!</strong> Kamu telah menyelesaikan seluruh 10 Level Petualangan! 🏆`;
+        if (unlockBanner) {
+          unlockBanner.style.display = 'flex';
+          unlockBanner.classList.add('champion');
         }
+        if (unlockText) {
+          unlockText.textContent = '🏆 SELURUH 10 SEKTOR PERTEMPURAN TELAH DITAKLUKKAN! 🏆';
+        }
+        if (btnNextText) btnNextText.textContent = 'PILIH SEKTOR ☷';
+        else if (btnNext) btnNext.textContent = 'PILIH SEKTOR ☷';
       }
 
       victoryModal.style.display = 'flex';
@@ -602,6 +703,10 @@ export class Game {
     }
 
     this.fireRainTimer = this.fireRainCooldown;
+    if (!this.battleStats) {
+      this.battleStats = { unitsSpawned: 0, quizzesAnswered: 0, quizzesCorrect: 0, skillsUsed: 0 };
+    }
+    this.battleStats.skillsUsed++;
     this.soundManager.playSfx('fire_rain');
     this.renderer.triggerScreenShake(0.7, 5);
     this.renderer.triggerFireRainVfx(this.combatManager, camX);
@@ -628,6 +733,10 @@ export class Game {
     }
 
     this.heroRegenTimer = this.heroRegenCooldown;
+    if (!this.battleStats) {
+      this.battleStats = { unitsSpawned: 0, quizzesAnswered: 0, quizzesCorrect: 0, skillsUsed: 0 };
+    }
+    this.battleStats.skillsUsed++;
     this.soundManager.playSfx('hero_regen');
     this.renderer.triggerHeroRegenVfx(this.combatManager.playerUnits);
 
@@ -773,8 +882,13 @@ export class Game {
       if (btn) {
         btn.classList.toggle('is-paused', this.isPaused);
         const iconSpan = btn.querySelector('.hud-btn-icon');
+        const iconImg = btn.querySelector('.hud-btn-icon-img');
         const textSpan = btn.querySelector('.hud-btn-text');
         if (iconSpan) iconSpan.textContent = this.isPaused ? '▶' : '⏸';
+        if (iconImg) {
+          iconImg.src = this.isPaused ? 'assets/ui/icon_btn_resume.png' : 'assets/ui/icon_btn_pause.png';
+          iconImg.alt = this.isPaused ? 'Lanjut' : 'Jeda';
+        }
         if (textSpan) textSpan.textContent = this.isPaused ? 'LANJUT' : 'JEDA';
         btn.title = this.isPaused ? 'Lanjutkan Permainan (Spasi)' : 'Jeda Permainan (Spasi)';
       }
@@ -787,8 +901,13 @@ export class Game {
         const isFast = this.timeScale > 1.0;
         btn.classList.toggle('speed-2x', isFast);
         const iconSpan = btn.querySelector('.hud-btn-icon');
+        const iconImg = btn.querySelector('.hud-btn-icon-img');
         const textSpan = btn.querySelector('.hud-btn-text');
         if (iconSpan) iconSpan.textContent = isFast ? '⚡⚡' : '⚡';
+        if (iconImg) {
+          iconImg.src = isFast ? 'assets/ui/icon_btn_speed_2x.png' : 'assets/ui/icon_btn_speed_1x.png';
+          iconImg.alt = isFast ? '2X Cepat' : '1X Normal';
+        }
         if (textSpan) textSpan.textContent = isFast ? '2X CEPAT' : '1X';
         btn.title = isFast ? 'Kecepatan Cepat (2x) - Klik untuk 1x Normal' : 'Kecepatan Normal (1x) - Klik untuk 2x Cepat';
       }
@@ -831,8 +950,13 @@ export class Game {
       if (btnFullscreen) {
         btnFullscreen.classList.toggle('is-fullscreen', isFs);
         const icon = btnFullscreen.querySelector('.hud-btn-icon');
+        const iconImg = btnFullscreen.querySelector('.hud-btn-icon-img');
         const text = btnFullscreen.querySelector('.hud-btn-text');
         if (icon) icon.textContent = isFs ? '✕' : '⛶';
+        if (iconImg) {
+          iconImg.src = isFs ? 'assets/ui/icon_btn_fullscreen_exit.png' : 'assets/ui/icon_btn_fullscreen_enter.png';
+          iconImg.alt = isFs ? 'Keluar Fullscreen' : 'Layar Penuh';
+        }
         if (text) text.textContent = isFs ? 'KELUAR' : 'FULL';
       }
       if (btnMenuFullscreen) {
@@ -919,8 +1043,13 @@ export class Game {
       if (btnSound) {
         btnSound.classList.toggle('is-muted', this.soundManager.muted);
         const iconSpan = btnSound.querySelector('.hud-btn-icon');
+        const iconImg = btnSound.querySelector('.hud-btn-icon-img');
         const textSpan = btnSound.querySelector('.hud-btn-text');
         if (iconSpan) iconSpan.textContent = this.soundManager.muted ? '🔇' : '🔊';
+        if (iconImg) {
+          iconImg.src = this.soundManager.muted ? 'assets/ui/icon_btn_sound_off.png' : 'assets/ui/icon_btn_sound_on.png';
+          iconImg.alt = this.soundManager.muted ? 'Bungkam' : 'Suara';
+        }
         if (textSpan) textSpan.textContent = this.soundManager.muted ? 'BUNGKAM' : 'SUARA';
       }
     };

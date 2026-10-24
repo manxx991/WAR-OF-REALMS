@@ -252,6 +252,41 @@ def process_vfx_bubble():
     sheet.save(dest, "PNG")
     print("   [OK] vfx_bubble_pop.png: 160x32 px (5 frames x 32x32)")
 
+def process_top_hud_icons():
+    print("7. Memproses Top HUD Action Icons (Pause, Sound, Speed, Fullscreen)...")
+    raw_path = os.path.join(RAW_BACKUP_DIR, "ui", "hud_top_icons_raw.png")
+    if not os.path.exists(raw_path):
+        print(f"   [SKIP] {raw_path} tidak ditemukan.")
+        return
+    
+    icon_names = [
+        ["icon_btn_pause.png", "icon_btn_sound_on.png", "icon_btn_speed_1x.png", "icon_btn_fullscreen_enter.png"],
+        ["icon_btn_resume.png", "icon_btn_sound_off.png", "icon_btn_speed_2x.png", "icon_btn_fullscreen_exit.png"]
+    ]
+    raw = Image.open(raw_path).convert("RGB")
+    corner = raw.getpixel((2, 2))
+    transparent = chroma_key_magenta(raw, corner)
+    w, h = raw.size
+    step_x = w / 4.0
+    step_y = h / 2.0
+    
+    for r in range(2):
+        for c in range(4):
+            name = icon_names[r][c]
+            cell = transparent.crop((int(c * step_x), int(r * step_y), int((c + 1) * step_x), int((r + 1) * step_y)))
+            bbox = get_tight_bbox(cell)
+            cropped = cell.crop(bbox) if bbox else cell
+            cw, ch = cropped.size
+            scale = min(28.0 / cw, 28.0 / ch)
+            fw = max(1, int(cw * scale))
+            fh = max(1, int(ch * scale))
+            res = cropped.resize((fw, fh), Image.Resampling.LANCZOS)
+            canvas = Image.new("RGBA", (32, 32), (0, 0, 0, 0))
+            canvas.paste(res, ((32 - fw) // 2, (32 - fh) // 2), res)
+            out_dest = os.path.join(ASSETS_DIR, "ui", name)
+            canvas.save(out_dest, "PNG")
+            print(f"   [OK] {name}: 32x32 px RGBA")
+
 if __name__ == "__main__":
     process_damaged_castles()
     process_sunset_biome()
@@ -259,4 +294,5 @@ if __name__ == "__main__":
     process_action_button_icons()
     process_quiz_option_buttons()
     process_vfx_bubble()
+    process_top_hud_icons()
     print("\nSeluruh aset baru berhasil diproses dan disesuaikan ke standar retro game!")

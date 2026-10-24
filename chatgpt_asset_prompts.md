@@ -242,6 +242,62 @@ Dimensi: Lebar 96 px, **Tinggi maksimal 112 px** (agar tidak menyentuh HUD atas 
 * **Prompt ChatGPT:**
 > Pixel art game UI icon of a troop healing and regeneration skill, 40x40 pixels square icon. An ornate circular tactical button frame made of dark obsidian metal with glowing emerald-green circuit trims. Inside is a glowing jade-green medical cross and winged heart emblem radiating upward beams of holy light and sparkling digital health motes. 16-bit retro video game UI icon, bright high-contrast green and cyan glow, isolated on solid pure magenta `#FF00FF` background.
 
+### [UI-06] Ikon Tombol Top HUD: Jeda & Lanjut (Pause & Resume - 32x32 px per icon)
+* **Lokasi Simpan:** 
+  - Jeda (Pause): `assets/ui/icon_btn_pause.png`
+  - Lanjut (Resume / Play): `assets/ui/icon_btn_resume.png`
+* **Prompt ChatGPT (Pair):**
+> Pixel art game UI icon set of tactical game control buttons, containing 2 distinct square icon buttons side-by-side on a solid pure magenta `#FF00FF` background, 16-bit retro cyber arcade style, clean sharp pixels, no anti-aliasing:
+> 1. Pause Icon (32x32 px): Dark obsidian beveled square button frame with glowing neon cyan (`#00f2fe`) corner brackets. In the center are two vertical parallel holographic energy bars glowing radiant neon cyan with electric pulse sparks.
+> 2. Resume / Play Icon (32x32 px): Dark obsidian beveled square button frame with glowing electric gold (`#ffd200`) corner brackets. In the center is a sharp right-pointing equilateral triangle laser energy crystal glowing vibrant amber-gold and white-hot plasma, indicating unpause / resume action.
+> Flat 2D orthographic view, ultra-crisp pixel boundaries, high contrast, isolated on solid `#FF00FF`.
+
+### [UI-07] Ikon Tombol Top HUD: Suara & Bungkam (Audio On & Mute - 32x32 px per icon)
+* **Lokasi Simpan:** 
+  - Suara Aktif (Audio On): `assets/ui/icon_btn_sound_on.png`
+  - Bungkam (Muted / Audio Off): `assets/ui/icon_btn_sound_off.png`
+* **Prompt ChatGPT (Pair):**
+> Pixel art game UI icon set of sound audio toggle buttons, containing 2 distinct square icon buttons side-by-side on a solid pure magenta `#FF00FF` background, 16-bit cyber arcade pixel art style, zero anti-aliasing:
+> 1. Sound On Icon (32x32 px): Dark titanium square button frame with glowing neon sky-blue (`#38bdf8`) trim. In the center is a futuristic acoustic cyber speaker megaphone cone emitting two concentric curved radiating sound wave sonic arcs in bright electric cyan, indicating active sound effects and BGM.
+> 2. Sound Mute Icon (32x32 px): Dark graphite square button frame with dim metallic trim. In the center is the same futuristic cyber speaker cone in desaturated slate gray, overlaid with a bold glowing crimson-red (`#ef4444`) diagonal holographic cancellation slash bar, indicating muted audio.
+> Crisp sharp 16-bit pixels, flat orthographic 2D, high contrast, isolated on solid pure magenta `#FF00FF`.
+
+### [UI-08] Ikon Tombol Top HUD: Kecepatan 1X & 2X Turbo (Speed Normal & Overdrive - 32x32 px per icon)
+* **Lokasi Simpan:** 
+  - Kecepatan 1X (Normal Speed): `assets/ui/icon_btn_speed_1x.png`
+  - Kecepatan 2X (Turbo Overdrive): `assets/ui/icon_btn_speed_2x.png`
+* **Prompt ChatGPT (Pair):**
+> Pixel art game UI icon set of gameplay battle speed control buttons, containing 2 distinct square icon buttons side-by-side on a solid pure magenta `#FF00FF` background, 16-bit retro sci-fi arcade style, crisp pixel edges:
+> 1. Speed 1X Icon (32x32 px): Dark metallic square frame with neon gold accents. In the center is a sharp single vertical lightning energy bolt glowing radiant electric yellow (`#ffd200`) with subtle blue sparks, representing standard 1x battle tempo.
+> 2. Speed 2X Turbo Icon (32x32 px): Dark metallic square frame with glowing energetic orange and crimson hazard trims. In the center are twin parallel angled overdrive lightning bolts combined with double forward supersonic speed chevrons (`>>`), glowing fiercely in flaming neon amber-orange (`#ff7700`) and electric yellow with motion trails, indicating 2x accelerated hyper-speed.
+> Flat 2D side view, sharp pixel grid, high vibrancy, isolated on solid pure magenta `#FF00FF`.
+
+### [UI-09] Ikon Tombol Top HUD: Layar Penuh Masuk & Keluar (Fullscreen Enter & Exit - 32x32 px per icon)
+* **Lokasi Simpan:** 
+  - Layar Penuh (Enter Fullscreen): `assets/ui/icon_btn_fullscreen_enter.png`
+  - Keluar Layar Penuh (Exit Fullscreen): `assets/ui/icon_btn_fullscreen_exit.png`
+* **Prompt ChatGPT (Pair):**
+> Pixel art game UI icon set of display fullscreen toggle buttons, containing 2 distinct square icon buttons side-by-side on a solid pure magenta `#FF00FF` background, 16-bit cyber arcade pixel art, clean sharp pixels:
+> 1. Fullscreen Enter Icon (32x32 px): Dark carbon-composite square frame with cyan circuit traces. In the center are four diagonal corner brackets / reticle arrows expanding outward toward the four corners, glowing in vivid neon turquoise (`#00f2fe`), representing maximizing display to full screen.
+> 2. Fullscreen Exit Icon (32x32 px): Dark carbon-composite square frame with neon emerald green accents. In the center are four diagonal chevron arrows converging inward toward the center (or an inward-collapsing tactical reticle), glowing in high-tech mint-green (`#34d399`) and cyan, representing exiting full screen to windowed mode.
+> Flat 2D orthographic, crisp pixel art, isolated on solid pure magenta `#FF00FF`.
+
+### [UI-10] Master Sheet: Paket 8 Ikon Top HUD Game (Grid 4x2 dalam 1 Gambar DALL-E 3)
+* **Deskripsi:** Paket all-in-one untuk men-generate seluruh 8 variasi ikon HUD atas sekaligus dalam 1 kali chat DALL-E 3 / ChatGPT.
+* **Prompt ChatGPT (All-In-One):**
+> Master UI icon spritesheet for a 2D retro cyber arcade strategy game, arranged in a neat 4x2 grid of 8 distinct square pixel art button icons on a solid pure magenta `#FF00FF` background. Each icon is cleanly separated with ample spacing. Style: 16-bit arcade pixel art, dark titanium beveled frames, vibrant glowing neon sci-fi glyphs, sharp pixel edges, zero anti-aliasing:
+> - Row 1 (State Normal):
+>   1. Pause: Two vertical glowing neon cyan (`#00f2fe`) energy bars.
+>   2. Sound On: Futuristic speaker cone with radiating sky-blue (`#38bdf8`) sonic shockwave arcs.
+>   3. Speed 1X: Single electric gold (`#ffd200`) lightning bolt.
+>   4. Fullscreen Enter: Four outward expanding neon cyan diagonal corner bracket arrows.
+> - Row 2 (State Aktif / Berubah):
+>   5. Resume/Play: Right-pointing glowing amber-gold (`#ffd200`) energy triangle crystal.
+>   6. Sound Mute: Futuristic speaker with a glowing crimson-red (`#ef4444`) diagonal cancellation slash.
+>   7. Speed 2X: Twin overdrive lightning bolts with double forward speed chevrons in glowing fire-orange (`#ff7700`).
+>   8. Fullscreen Exit: Four inward converging neon emerald-green (`#34d399`) chevron arrows.
+> Strictly flat 2D orthographic, uniform square dimensions, high contrast, isolated on solid pure magenta `#FF00FF`.
+
 ---
 
 ## 7. Prompt Generator Musik & SFX (Suno AI / ElevenLabs)

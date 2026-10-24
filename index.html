@@ -17,22 +17,22 @@
     <div class="top-hud-strip">
       <div class="top-hud-group left-group">
         <button id="btnPause" class="top-hud-btn pause-hud-btn" title="Jeda Permainan (Spasi)">
-          <span class="hud-btn-icon">⏸</span>
+          <img class="hud-btn-icon-img" src="assets/ui/icon_btn_pause.png" alt="Jeda">
           <span class="hud-btn-text">JEDA</span>
         </button>
         <button id="btnSound" class="top-hud-btn sound-hud-btn" title="Nyalakan / Matikan Audio (M)">
-          <span class="hud-btn-icon">🔊</span>
+          <img class="hud-btn-icon-img" src="assets/ui/icon_btn_sound_on.png" alt="Suara">
           <span class="hud-btn-text">SUARA</span>
         </button>
       </div>
 
       <div class="top-hud-group right-group">
         <button id="btnSpeed" class="top-hud-btn speed-hud-btn" title="Ubah Kecepatan Game: 1X Normal / 2X Cepat">
-          <span class="hud-btn-icon">⚡</span>
+          <img class="hud-btn-icon-img" src="assets/ui/icon_btn_speed_1x.png" alt="Kecepatan">
           <span class="hud-btn-text">1X</span>
         </button>
         <button id="btnFullscreen" class="top-hud-btn fullscreen-hud-btn" title="Layar Penuh / Keluar Layar Penuh">
-          <span class="hud-btn-icon">⛶</span>
+          <img class="hud-btn-icon-img" src="assets/ui/icon_btn_fullscreen_enter.png" alt="Layar Penuh">
           <span class="hud-btn-text">FULL</span>
         </button>
       </div>
@@ -231,15 +231,74 @@
         <div class="modal-corner-deco bottom-left"></div>
         <div class="modal-corner-deco bottom-right"></div>
 
-        <div class="victory-header-badge">SEKTOR BERHASIL DITAKLUKKAN!</div>
-        <div class="menu-title cyber-win-title">🎉 HORE MENANG! 🎉</div>
-        <div id="victoryStars" class="stars-rating">⭐⭐⭐</div>
-        <p id="victoryMessage" class="modal-desc victory-desc">Kastel lawan berhasil kamu taklukkan!</p>
-        
-        <div class="menu-buttons">
-          <button id="btnNextLevel" class="primary-btn cyber-btn-primary">Level Berikutnya ➔</button>
-          <button id="btnRetry" class="secondary-btn cyber-btn-secondary">Main Lagi</button>
-          <button id="btnBackToMenu" class="secondary-btn cyber-btn-secondary">Pilih Level</button>
+        <!-- Top Status Chip -->
+        <div class="victory-header-chip">
+          <span class="victory-chip-dot">●</span>
+          <span class="victory-chip-text">// TACTICAL MISSION SECURED // SECTOR OVERRIDDEN</span>
+        </div>
+
+        <!-- Main Title -->
+        <div class="victory-title-wrap">
+          <h2 class="victory-title">
+            <span class="v-title-cyan">SECTOR</span>
+            <span class="v-title-gold">CLEARED</span>
+          </h2>
+          <div class="victory-sector-tag" id="victorySectorTag">SEKTOR 1: CYBER GATE &bull; HITUNG CEPAT & SAINS ALAM</div>
+        </div>
+
+        <!-- Rank Grade & Stars Showcase -->
+        <div class="victory-rating-showcase">
+          <div class="victory-rank-badge rank-s" id="victoryRankBadge">
+            <span class="rank-letter" id="victoryRankLetter">S</span>
+            <span class="rank-label">TACTICAL</span>
+          </div>
+          <div class="victory-stars-col">
+            <div id="victoryStars" class="cyber-stars-row">
+              <!-- Injected by Game.js -->
+            </div>
+            <div class="rank-desc" id="victoryRankDesc">TACTICAL SUPREMACY (3 STARS)</div>
+          </div>
+        </div>
+
+        <!-- Tactical Battle Stats Grid -->
+        <div class="victory-stats-grid">
+          <div class="v-stat-card">
+            <div class="v-stat-label">INTEGRITAS BASE</div>
+            <div class="v-stat-value" id="vStatHp">100%</div>
+            <div class="v-stat-sub" id="vStatHpSub">1000 / 1000 HP</div>
+          </div>
+          <div class="v-stat-card">
+            <div class="v-stat-label">KUIS STRATEGIS</div>
+            <div class="v-stat-value" id="vStatQuiz">0 Terjawab</div>
+            <div class="v-stat-sub" id="vStatQuizSub">100% Akurasi</div>
+          </div>
+          <div class="v-stat-card">
+            <div class="v-stat-label">PASUKAN DIKERAHKAN</div>
+            <div class="v-stat-value" id="vStatUnits">0 Unit</div>
+            <div class="v-stat-sub">Cyber Reinforcements</div>
+          </div>
+          <div class="v-stat-card">
+            <div class="v-stat-label">DURASI TEMPUR</div>
+            <div class="v-stat-value" id="vStatTime">00:00</div>
+            <div class="v-stat-sub">Waktu Penyelesaian</div>
+          </div>
+        </div>
+
+        <!-- Unlock & Reward Alert Banner -->
+        <div id="victoryUnlockBanner" class="victory-unlock-banner">
+          <span class="v-unlock-icon">🔓</span>
+          <span class="v-unlock-text" id="victoryUnlockText">SEKTOR 2 TERBUKA: QUANTUM CORE</span>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="victory-buttons">
+          <button id="btnNextLevel" class="victory-btn-next">
+            <span class="btn-text" id="btnNextLevelText">SEKTOR BERIKUTNYA ➔</span>
+          </button>
+          <div class="victory-sub-buttons">
+            <button id="btnRetry" class="victory-btn-sub">↺ ULANGI SEKTOR</button>
+            <button id="btnBackToMenu" class="victory-btn-sub">☷ PETA SEKTOR</button>
+          </div>
         </div>
       </div>
     </div>
